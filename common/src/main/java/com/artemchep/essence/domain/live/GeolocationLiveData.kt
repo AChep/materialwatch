@@ -3,6 +3,7 @@ package com.artemchep.essence.domain.live
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import arrow.core.Either
 import arrow.core.toOption
@@ -13,9 +14,10 @@ import com.artemchep.essence.domain.exceptions.GeolocationEmptyException
 import com.artemchep.essence.domain.live.base.BaseLiveData
 import com.artemchep.essence.domain.models.Geolocation
 import com.artemchep.essence.domain.models.Moment
-import com.artemchep.essence.domain.ports.EssentialsPort
+import com.artemchep.essence.domain.models.Time
 import com.artemchep.essence.extensions.await
 import com.artemchep.essence.extensions.produce
+import com.artemchep.essence.extensions.produceFromLive
 import com.artemchep.essence.extensions.receive
 import com.artemchep.essence.ifDebug
 import com.google.android.gms.location.LocationServices
@@ -31,7 +33,10 @@ import java.util.concurrent.ExecutionException
 class GeolocationLiveData(
     private val context: Context,
     private val config: Cfg,
-    private val essentialsPort: EssentialsPort
+    /**
+     * The emitter of the time
+     */
+    private val timeLiveData: LiveData<Time>
 ) : BaseLiveData<Moment<Either<Throwable, Geolocation>>>() {
 
     companion object {
@@ -42,12 +47,18 @@ class GeolocationLiveData(
 
     private var geolocationJob: Job? = null
 
+    init {
+        value = Moment.now(Either.left(GeolocationEmptyException()))
+    }
+
     override fun onActive() {
         super.onActive()
-        consumeEach(essentialsPort.timeBroadcast) {
-            val prevTime = value?.time
-            if (prevTime == null || (it - prevTime).millis > config.geolocationUpdatePeriod) {
-                updateGeolocation()
+        launch {
+            produceFromLive(timeLiveData).consumeEach {
+                val prevTime = value?.time
+                if (prevTime == null || (it - prevTime).millis > config.geolocationUpdatePeriod) {
+                    updateGeolocation()
+                }
             }
         }
 

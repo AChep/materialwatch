@@ -1,34 +1,6 @@
 package com.artemchep.essence.ui.watchface
 
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Rect
-import android.support.wearable.complications.ComplicationData
-import android.support.wearable.watchface.CanvasWatchFaceService
-import android.support.wearable.watchface.WatchFaceStyle
-import android.util.SparseArray
-import android.view.LayoutInflater
-import android.view.SurfaceHolder
 import android.view.View
-import androidx.core.util.forEach
-import com.artemchep.config.Config
-import com.artemchep.essence.Cfg
-import com.artemchep.essence.R
-import com.artemchep.essence.WATCH_COMPLICATIONS
-import com.artemchep.essence.domain.adapters.weather.darksky.WeatherDarkSkyPortImpl
-import com.artemchep.essence.domain.models.Theme
-import com.artemchep.essence.domain.models.Time
-import com.artemchep.essence.domain.ports.ComplicationsPort
-import com.artemchep.essence.domain.ports.EssentialsPort
-import com.artemchep.essence.domain.viewmodel.WatchFaceViewModel
-import com.artemchep.essence.sync.DataClientCfgAdapter
-import com.artemchep.essence.ui.views.WatchFaceView
-import com.artemchep.essence.util.TimezoneManager
-import com.google.android.gms.wearable.Wearable
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
-import java.util.*
-import kotlin.coroutines.CoroutineContext
 
 /**
  * @author Artem Chepurnoy

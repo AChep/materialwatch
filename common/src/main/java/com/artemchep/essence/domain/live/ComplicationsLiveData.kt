@@ -3,20 +3,40 @@ package com.artemchep.essence.domain.live
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.util.Log
+import android.util.SparseArray
 import androidx.core.util.forEach
+import androidx.lifecycle.LiveData
 import com.artemchep.essence.WATCH_COMPLICATIONS
 import com.artemchep.essence.domain.live.base.BaseLiveData
-import com.artemchep.essence.domain.ports.ComplicationsPort
-import com.artemchep.essence.domain.ports.EssentialsPort
+import com.artemchep.essence.domain.models.AmbientMode
+import com.artemchep.essence.domain.models.Complication
+import com.artemchep.essence.domain.models.Time
+import com.artemchep.essence.extensions.produceFromLive
+import com.artemchep.essence.extensions.receive
 import com.artemchep.essence.ifDebug
+import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 /**
  * @author Artem Chepurnoy
  */
 class ComplicationsLiveData(
     private val context: Context,
-    private val complicationsPort: ComplicationsPort,
-    private val essentialsPort: EssentialsPort
+    /**
+     * The emitter of the time
+     */
+    private val timeLiveData: LiveData<Time>,
+    /**
+     * The emitter of the ambient mode state
+     * data.
+     */
+    private val ambientModeLiveData: LiveData<AmbientMode>,
+    /**
+     * The emitter of the complications
+     * data.
+     */
+    private val complicationsRawLiveData: LiveData<SparseArray<out (Context, Time) -> Complication>>
 ) : BaseLiveData<Map<Int, Pair<Drawable?, String?>>>() {
 
     companion object {
@@ -25,16 +45,23 @@ class ComplicationsLiveData(
 
     override fun onActive() {
         super.onActive()
-        consumeEach(essentialsPort.ambientModeBroadcast) { updateComplications() }
-        consumeEach(essentialsPort.timeBroadcast) { updateComplications() }
+        launch {
+            produceFromLive(complicationsRawLiveData).consumeEach { updateComplications() }
+        }
+        launch {
+            produceFromLive(ambientModeLiveData).consumeEach { updateComplications() }
+        }
+        launch {
+            produceFromLive(timeLiveData).consumeEach { updateComplications() }
+        }
 
         updateComplications()
     }
 
     private fun updateComplications() {
-        val sparse = complicationsPort.complicationsBroadcast.value
-        val ambientMode = essentialsPort.ambientModeBroadcast.value
-        val time = essentialsPort.timeBroadcast.value
+        val sparse = runBlocking { complicationsRawLiveData.receive() }
+        val ambientMode = runBlocking { ambientModeLiveData.receive() }.isOn
+        val time = runBlocking { timeLiveData.receive() }
 
         // Form a map of new complications for current
         // conditions.

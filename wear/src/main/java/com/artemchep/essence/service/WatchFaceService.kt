@@ -13,25 +13,21 @@ import android.util.SparseArray
 import android.view.LayoutInflater
 import android.view.SurfaceHolder
 import android.view.View
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LifecycleRegistry
-import androidx.lifecycle.Observer
+import androidx.lifecycle.*
 import com.artemchep.essence.Cfg
 import com.artemchep.essence.R
 import com.artemchep.essence.WATCH_COMPLICATIONS
 import com.artemchep.essence.domain.adapters.weather.WeatherPort
+import com.artemchep.essence.domain.models.AmbientMode
 import com.artemchep.essence.domain.models.Complication
 import com.artemchep.essence.domain.models.Time
-import com.artemchep.essence.domain.ports.ComplicationsPort
-import com.artemchep.essence.domain.ports.EssentialsPort
+import com.artemchep.essence.domain.models.asAmbientMode
 import com.artemchep.essence.domain.viewmodel.WatchFaceViewModel
 import com.artemchep.essence.extensions.getLongMessage
 import com.artemchep.essence.extensions.getShortMessage
 import com.artemchep.essence.extensions.isActive
 import com.artemchep.essence.ui.views.WatchFaceView
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlin.coroutines.CoroutineContext
@@ -64,19 +60,21 @@ open class WatchFaceService : CanvasWatchFaceService() {
 
         // ---- Ports ----
 
-        // The essentials of the watch face
-        // engine.
-        private val essentialsPort = object : EssentialsPort {
-            override val timeBroadcast: ConflatedBroadcastChannel<Time> =
-                ConflatedBroadcastChannel(EssentialsPort.DEFAULT_TIME.let(::Time))
-            override val ambientModeBroadcast: ConflatedBroadcastChannel<Boolean> =
-                ConflatedBroadcastChannel(EssentialsPort.DEFAULT_AMBIENT)
-        }
+        private val timeLiveData = MutableLiveData<Time>()
+            .apply {
+                value = Time()
+            }
 
-        private val complicationsPort = object : ComplicationsPort {
-            override val complicationsBroadcast: ConflatedBroadcastChannel<SparseArray<out (Context, Time) -> Complication>> =
-                ConflatedBroadcastChannel(SparseArray())
-        }
+        private val ambientModeLiveData = MutableLiveData<AmbientMode>()
+            .apply {
+                value = AmbientMode.Off
+            }
+
+        private val complicationsRawLiveData =
+            MutableLiveData<SparseArray<out (Context, Time) -> Complication>>()
+                .apply {
+                    value = SparseArray()
+                }
 
         private val weatherPort = WeatherPort()
 
@@ -107,8 +105,14 @@ open class WatchFaceService : CanvasWatchFaceService() {
                 .inflate(R.layout.watch_face, null, false)
                 .let { it as WatchFaceView }
 
-            viewModel =
-                WatchFaceViewModel(application, Cfg, complicationsPort, weatherPort, essentialsPort)
+            viewModel = WatchFaceViewModel(
+                application,
+                Cfg,
+                weatherPort,
+                timeLiveData,
+                ambientModeLiveData,
+                complicationsRawLiveData
+            )
             viewModel.setup()
         }
 
@@ -129,17 +133,14 @@ open class WatchFaceService : CanvasWatchFaceService() {
 
         override fun onTimeTick() {
             super.onTimeTick()
-            runBlocking {
-                val time = Time()
-                essentialsPort.timeBroadcast.send(time)
-            }
+            val time = Time()
+            timeLiveData.postValue(time)
         }
 
         override fun onAmbientModeChanged(inAmbientMode: Boolean) {
             super.onAmbientModeChanged(inAmbientMode)
-            runBlocking {
-                essentialsPort.ambientModeBroadcast.send(inAmbientMode)
-            }
+            val ambientMode = inAmbientMode.asAmbientMode()
+            ambientModeLiveData.postValue(ambientMode)
         }
 
         override fun onComplicationDataUpdate(
@@ -187,7 +188,7 @@ open class WatchFaceService : CanvasWatchFaceService() {
                     .withLock {
                         complicationDataSparse.clone()
                     }
-                complicationsPort.complicationsBroadcast.send(sparse)
+                complicationsRawLiveData.postValue(sparse)
             }.apply {
                 invokeOnCompletion {
                     sendComplicationsJob = null

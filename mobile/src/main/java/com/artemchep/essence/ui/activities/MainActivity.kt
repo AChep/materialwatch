@@ -15,14 +15,15 @@ import com.artemchep.essence.ACTION_PERMISSIONS_CHANGED
 import com.artemchep.essence.Cfg
 import com.artemchep.essence.R
 import com.artemchep.essence.RUNTIME_PERMISSIONS
-import com.artemchep.essence.adapters.ComplicationsPortImpl
-import com.artemchep.essence.adapters.EssentialsPortImpl
 import com.artemchep.essence.domain.adapters.weather.WeatherPort
 import com.artemchep.essence.domain.models.OkScreen
 import com.artemchep.essence.domain.models.SETTINGS_ITEM_ACCENT
 import com.artemchep.essence.domain.models.SETTINGS_ITEM_THEME
 import com.artemchep.essence.domain.viewmodel.SettingsViewModel
 import com.artemchep.essence.domain.viewmodel.WatchFaceViewModel
+import com.artemchep.essence.live.AmbientModeLiveData
+import com.artemchep.essence.live.ComplicationsRawLiveData
+import com.artemchep.essence.live.TimeLiveData
 import com.artemchep.essence.ui.adapters.MainAdapter
 import com.artemchep.essence.ui.dialogs.AboutDialog
 import com.artemchep.essence.ui.dialogs.PickerDialog
@@ -39,7 +40,6 @@ import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.layout_toolbar.*
-import kotlinx.coroutines.launch
 
 /**
  * @author Artem Chepurnoy
@@ -52,11 +52,11 @@ class MainActivity : ActivityBase(),
 
     // ---- Ports ----
 
-    // The essentials of the watch face
-    // engine.
-    private val essentialsPort = EssentialsPortImpl(this)
+    private val timeLiveData = TimeLiveData(this)
 
-    private val complicationsPort = ComplicationsPortImpl(this)
+    private val ambientModeLiveData = AmbientModeLiveData()
+
+    private val complicationsRawLiveData = ComplicationsRawLiveData()
 
     private val weatherPort = WeatherPort()
 
@@ -104,9 +104,10 @@ class MainActivity : ActivityBase(),
     private fun setupWatchFaceViewModel() {
         val watchFaceViewModelFactory = WatchFaceViewModel.Factory(
             application, Cfg,
-            complicationsPort,
             weatherPort,
-            essentialsPort
+            timeLiveData,
+            ambientModeLiveData,
+            complicationsRawLiveData
         )
         watchFaceViewModel = ViewModelProviders
             .of(this, watchFaceViewModelFactory)
@@ -191,21 +192,6 @@ class MainActivity : ActivityBase(),
             .withPermissions(RUNTIME_PERMISSIONS)
             .withListener(listener)
             .check()
-    }
-
-    override fun onStart() {
-        super.onStart()
-
-        // Setup the essentials: clock and an ambient mode
-        // toggle.
-        launch {
-            with(essentialsPort) { setup() }
-        }
-
-        // Setup the complications.
-        launch {
-            with(complicationsPort) { setup() }
-        }
     }
 
     override fun onResume() {

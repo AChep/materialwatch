@@ -1,7 +1,9 @@
 package com.artemchep.essence.domain.viewmodel
 
 import android.app.Application
+import android.content.Context
 import android.graphics.drawable.Drawable
+import android.util.SparseArray
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -9,11 +11,8 @@ import arrow.core.Either
 import com.artemchep.essence.Cfg
 import com.artemchep.essence.domain.live.*
 import com.artemchep.essence.domain.models.*
-import com.artemchep.essence.domain.ports.ComplicationsPort
-import com.artemchep.essence.domain.ports.EssentialsPort
 import com.artemchep.essence.domain.ports.WeatherPort
 import com.artemchep.essence.domain.viewmodel.base.BaseViewModel
-import com.artemchep.essence.extensions.toLiveData
 
 /**
  * @author Artem Chepurnoy
@@ -21,27 +20,37 @@ import com.artemchep.essence.extensions.toLiveData
 class WatchFaceViewModel(
     application: Application,
     config: Cfg,
-    complicationsPort: ComplicationsPort,
     weatherPort: WeatherPort,
-    essentialsPort: EssentialsPort
+    /**
+     * The emitter of the time
+     */
+    val timeLiveData: LiveData<Time>,
+    /**
+     * The emitter of the ambient mode state
+     * data.
+     */
+    ambientModeLiveData: LiveData<AmbientMode>,
+    /**
+     * The emitter of the complications
+     * data.
+     */
+    complicationsRawLiveData: LiveData<SparseArray<out (Context, Time) -> Complication>>
 ) : BaseViewModel(application) {
 
     val themeLiveData: LiveData<Theme> =
-        ThemeLiveData(config, essentialsPort)
+        ThemeLiveData(config, ambientModeLiveData)
 
     val visibilityLiveData: LiveData<Visibility> =
-        VisibilityLiveData(config, essentialsPort)
+        VisibilityLiveData(config, ambientModeLiveData)
 
     val geolocationLiveData: LiveData<Moment<Either<Throwable, Geolocation>>> =
-        GeolocationLiveData(context, config, essentialsPort)
+        GeolocationLiveData(context, config, timeLiveData)
 
     val weatherLiveData: LiveData<Either<Throwable, Weather>> =
-        WeatherLiveData(config, weatherPort, essentialsPort, geolocationLiveData)
+        WeatherLiveData(config, weatherPort, ambientModeLiveData, geolocationLiveData)
 
     val complicationsLiveData: LiveData<Map<Int, Pair<Drawable?, String?>>> =
-        ComplicationsLiveData(context, complicationsPort, essentialsPort)
-
-    val timeLiveData: LiveData<Time> = essentialsPort.timeBroadcast.toLiveData()
+        ComplicationsLiveData(context, timeLiveData, ambientModeLiveData, complicationsRawLiveData)
 
     /**
      * @author Artem Chepurnoy
@@ -54,20 +63,24 @@ class WatchFaceViewModel(
          */
         private val config: Cfg,
         /**
-         * An implementation of the complications
-         * port.
-         */
-        private val complicationsPort: ComplicationsPort,
-        /**
          * An implementation of the weather
          * port.
          */
         private val weatherPort: WeatherPort,
         /**
-         * An implementation of the essentials
-         * port.
+         * The emitter of the time
          */
-        private val essentialsPort: EssentialsPort
+        private val timeLiveData: LiveData<Time>,
+        /**
+         * The emitter of the ambient mode state
+         * data.
+         */
+        private val ambientModeLiveData: LiveData<AmbientMode>,
+        /**
+         * The emitter of the complications
+         * data.
+         */
+        private val complicationsRawLiveData: LiveData<SparseArray<out (Context, Time) -> Complication>>
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
             return when {
@@ -75,9 +88,10 @@ class WatchFaceViewModel(
                     val viewModel = WatchFaceViewModel(
                         application,
                         config,
-                        complicationsPort,
                         weatherPort,
-                        essentialsPort
+                        timeLiveData,
+                        ambientModeLiveData,
+                        complicationsRawLiveData
                     )
                     viewModel as T
                 }

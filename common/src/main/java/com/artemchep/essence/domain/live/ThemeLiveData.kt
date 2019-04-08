@@ -1,10 +1,12 @@
 package com.artemchep.essence.domain.live
 
+import androidx.lifecycle.LiveData
 import com.artemchep.essence.Cfg
 import com.artemchep.essence.domain.live.base.BaseLiveData
+import com.artemchep.essence.domain.models.AmbientMode
 import com.artemchep.essence.domain.models.Theme
-import com.artemchep.essence.domain.ports.EssentialsPort
 import com.artemchep.essence.extensions.launchObserver
+import com.artemchep.essence.extensions.produceFromLive
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
 
@@ -13,21 +15,25 @@ import kotlinx.coroutines.launch
  */
 class ThemeLiveData(
     private val config: Cfg,
-    private val essentialsPort: EssentialsPort
+    /**
+     * The emitter of the ambient mode state
+     * data.
+     */
+    private val ambientModeLiveData: LiveData<AmbientMode>
 ) : BaseLiveData<Theme>() {
 
     override fun onActive() {
         super.onActive()
         launchObserver(config) { updateTheme() }
         launch {
-            essentialsPort.ambientModeBroadcast.consumeEach { updateTheme() }
+            produceFromLive(ambientModeLiveData).consumeEach { updateTheme() }
         }
 
         updateTheme()
     }
 
     private fun updateTheme() {
-        val inAmbientMode = essentialsPort.ambientModeBroadcast.value
+        val inAmbientMode = ambientModeLiveData.value!!.isOn
         val theme = if (inAmbientMode) {
             Theme.AMBIENT
         } else {

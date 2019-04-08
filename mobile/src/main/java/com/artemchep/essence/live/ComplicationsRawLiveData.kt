@@ -1,4 +1,4 @@
-package com.artemchep.essence.adapters
+package com.artemchep.essence.live
 
 import android.content.Context
 import android.text.format.DateFormat
@@ -6,25 +6,17 @@ import android.util.SparseArray
 import androidx.core.util.set
 import com.artemchep.essence.R
 import com.artemchep.essence.WATCH_COMPLICATION_THIRD
+import com.artemchep.essence.domain.live.base.BaseLiveData
 import com.artemchep.essence.domain.models.Complication
 import com.artemchep.essence.domain.models.Time
-import com.artemchep.essence.domain.ports.ComplicationsPort
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
-import kotlinx.coroutines.launch
 import java.util.*
 
 /**
  * @author Artem Chepurnoy
  */
-class ComplicationsPortImpl(
-    private val context: Context
-) : ComplicationsPort {
+class ComplicationsRawLiveData : BaseLiveData<SparseArray<out (Context, Time) -> Complication>>() {
 
-    override val complicationsBroadcast: ConflatedBroadcastChannel<SparseArray<out (Context, Time) -> Complication>> =
-        ConflatedBroadcastChannel(SparseArray())
-
-    fun CoroutineScope.setup() {
+    init {
         val sparse = SparseArray<(Context, Time) -> Complication>()
 
         // Show a date as third
@@ -41,9 +33,7 @@ class ComplicationsPortImpl(
             )
         }
 
-        launch {
-            complicationsBroadcast.send(sparse)
-        }
+        value = sparse
     }
 
 }

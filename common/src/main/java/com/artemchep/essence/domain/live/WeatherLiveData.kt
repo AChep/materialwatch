@@ -6,11 +6,12 @@ import arrow.core.Either
 import arrow.core.flatMap
 import com.artemchep.essence.Cfg
 import com.artemchep.essence.domain.live.base.BaseLiveData
+import com.artemchep.essence.domain.models.AmbientMode
 import com.artemchep.essence.domain.models.Geolocation
 import com.artemchep.essence.domain.models.Moment
 import com.artemchep.essence.domain.models.Weather
-import com.artemchep.essence.domain.ports.EssentialsPort
 import com.artemchep.essence.domain.ports.WeatherPort
+import com.artemchep.essence.extensions.produceFromLive
 import com.artemchep.essence.extensions.receive
 import com.artemchep.essence.ifDebug
 import kotlinx.coroutines.*
@@ -26,7 +27,11 @@ class WeatherLiveData(
      * weather.
      */
     private val weatherPort: WeatherPort,
-    private val essentialsPort: EssentialsPort,
+    /**
+     * The emitter of the ambient mode state
+     * data.
+     */
+    private val ambientModeLiveData: LiveData<AmbientMode>,
     /**
      * The emitter of the geolocation
      * data.
@@ -43,7 +48,7 @@ class WeatherLiveData(
     override fun onActive() {
         super.onActive()
         launch {
-            essentialsPort.ambientModeBroadcast.consumeEach { isAmbientMode ->
+            produceFromLive(ambientModeLiveData).consumeEach {
                 updateWeather()
             }
         }
@@ -80,8 +85,11 @@ class WeatherLiveData(
     }
 
     private suspend fun getWeather(): Either<Throwable, Weather> = coroutineScope {
-        geolocationLiveData.receive().value
-            .flatMap { weatherPort.getWeather(it) }
+        withContext(Dispatchers.Main) { geolocationLiveData.receive() }
+            .value
+            .flatMap {
+                weatherPort.getWeather(it)
+            }
     }
 
 }

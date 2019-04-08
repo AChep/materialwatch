@@ -1,26 +1,15 @@
 package com.artemchep.essence.extensions
 
+import androidx.annotation.MainThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
-import com.artemchep.essence.domain.live.base.BaseLiveData
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.consumeEach
 import kotlin.coroutines.resume
 
-fun <T> BroadcastChannel<T>.toLiveData(): LiveData<T> =
-    object : BaseLiveData<T>() {
-        override fun onActive() {
-            super.onActive()
-            launch {
-                consumeEach(::postValue)
-            }
-        }
-    }
-
+@MainThread
 suspend fun <T> LiveData<T>.receive(): T {
-    return suspendCancellableCoroutine { continuation ->
+    return suspendCancellableCoroutine<T> { continuation ->
         val observer = object : Observer<T> {
             override fun onChanged(t: T) {
                 continuation.resume(t)
@@ -31,16 +20,12 @@ suspend fun <T> LiveData<T>.receive(): T {
             }
         }
 
-        runBlocking {
-            launch(Dispatchers.Main) { observeForever(observer) }
-        }
+        observeForever(observer)
 
         // Remove the observer on
         // job's cancellation.
         continuation.invokeOnCancellation {
-            runBlocking {
-                launch(Dispatchers.Main) { removeObserver(observer) }
-            }
+            GlobalScope.launch(Dispatchers.Main) { removeObserver(observer) }
         }
     }
 }
@@ -49,7 +34,7 @@ suspend fun <T> LiveData<T>.receive(): T {
  * Produces a channel from given
  * live data.
  */
-fun <T> CoroutineScope.produce(liveData: LiveData<T>): Channel<T> {
+fun <T> CoroutineScope.produceFromLive(liveData: LiveData<T>): Channel<T> {
     val channel = Channel<T>(Channel.RENDEZVOUS)
     val observer = Observer<T> { t ->
         runBlocking {
