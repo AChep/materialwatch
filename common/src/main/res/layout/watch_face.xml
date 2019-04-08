@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.artemchep.essence.ui.views.WatchFaceView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/watchFaceView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:background="#000">
+
+    <com.iambedant.text.OutlineTextView
+        android:id="@+id/hour"
+        style="@style/WatchFaceClock.Hour.Horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/minute"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="22" />
+
+    <TextView
+        android:id="@+id/minute"
+        style="@style/WatchFaceClock.Minute.Horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="2dp"
+        app:layout_constraintBaseline_toBaselineOf="@id/hour"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toEndOf="@id/hour"
+        tools:text="22" />
+
+    <Space
+        android:id="@+id/center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!--
+        Top start
+        -->
+
+    <com.artemchep.essence.ui.views.arc.ArcLayout
+        android:id="@+id/arcTopStart"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:padding="6dp"
+        android:rotation="180"
+        app:layout_constraintBottom_toTopOf="@id/arcBottomStart"
+        app:layout_constraintEnd_toStartOf="@id/arcTopEnd"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:rotation="180">
+
+            <TextView
+                android:id="@+id/complication5TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawablePadding="2dp"
+                android:fontFamily="@font/manrope_semibold"
+                android:gravity="center_horizontal"
+                android:textColor="#fff"
+                android:textScaleX="0.6"
+                app:layout_constrainedWidth="true"
+                app:layout_constraintEnd_toStartOf="@id/complication6TextView"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/complication6TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:drawablePadding="2dp"
+                android:fontFamily="@font/manrope_semibold"
+                android:gravity="center_horizontal"
+                android:textColor="#fff"
+                android:textScaleX="0.6"
+                app:layout_constrainedWidth="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/complication5TextView"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="David ehllo David ehllo David ehllo David ehllo David ehllo David ehllo David ehllo David ehllo David ehllo David ehllo David ehllo David ehllo " />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.artemchep.essence.ui.views.arc.ArcLayout>
+
+    <!--
+        Top end
+        -->
+
+    <com.artemchep.essence.ui.views.arc.ArcLayout
+        android:id="@+id/arcTopEnd"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:padding="6dp"
+        android:rotation="270"
+        app:layout_constraintBottom_toTopOf="@id/arcBottomEnd"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/arcTopStart"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:rotation="180">
+
+            <TextView
+                android:id="@+id/complication3TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawablePadding="2dp"
+                android:fontFamily="@font/manrope_semibold"
+                android:gravity="center_horizontal"
+                android:textColor="#fff"
+                android:textScaleX="0.6"
+                app:layout_constrainedWidth="true"
+                app:layout_constraintEnd_toStartOf="@id/complication4TextView"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/complication4TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:drawablePadding="2dp"
+                android:fontFamily="@font/manrope_semibold"
+                android:gravity="center_horizontal"
+                android:textColor="#fff"
+                android:textScaleX="0.6"
+                app:layout_constrainedWidth="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/complication3TextView"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Expected rain in 2 hours" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.artemchep.essence.ui.views.arc.ArcLayout>
+
+    <!--
+        Bottom start
+        -->
+
+    <com.artemchep.essence.ui.views.arc.ArcLayout
+        android:id="@+id/arcBottomStart"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:padding="6dp"
+        android:rotation="90"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/arcBottomEnd"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/arcTopStart">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/complication2TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawablePadding="2dp"
+                android:fontFamily="@font/manrope_semibold"
+                android:gravity="center_horizontal"
+                android:textColor="#fff"
+                android:textScaleX="0.6"
+                app:layout_constrainedWidth="true"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/complication1TextView"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:text="8.43 km" />
+
+            <TextView
+                android:id="@+id/complication1TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:drawablePadding="2dp"
+                android:fontFamily="@font/manrope_semibold"
+                android:gravity="center_horizontal"
+                android:textColor="#fff"
+                android:textScaleX="0.6"
+                app:layout_constrainedWidth="true"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/complication2TextView"
+                tools:text="88 steps" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.artemchep.essence.ui.views.arc.ArcLayout>
+
+    <!--
+        Bottom end
+        -->
+
+    <com.artemchep.essence.ui.views.arc.ArcLayout
+        android:id="@+id/arcBottomEnd"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:padding="6dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/arcBottomStart"
+        app:layout_constraintTop_toBottomOf="@id/arcTopEnd">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tempMinView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/manrope_semibold"
+                android:textColor="#64c1ff"
+                android:textScaleX="0.6"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:text="7" />
+
+            <ProgressBar
+                android:id="@+id/tempProgressView"
+                style="?android:progressBarStyleHorizontal"
+                android:layout_width="0dp"
+                android:layout_height="4dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:max="100"
+                android:progress="50"
+                android:progressDrawable="@drawable/bg_temp"
+                app:layout_constraintBottom_toBottomOf="@id/tempMinView"
+                app:layout_constraintEnd_toStartOf="@id/tempMaxView"
+                app:layout_constraintStart_toEndOf="@id/tempMinView"
+                app:layout_constraintTop_toTopOf="@id/tempMinView" />
+
+            <View
+                android:id="@+id/tempCurProgressView"
+                android:layout_width="3dp"
+                android:layout_height="2dp"
+                android:layout_marginStart="1dp"
+                android:background="@drawable/bg_temp_cur"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="@id/tempProgressView"
+                app:layout_constraintStart_toStartOf="@id/tempProgressView"
+                app:layout_constraintTop_toTopOf="@id/tempProgressView" />
+
+            <TextView
+                android:id="@+id/tempMaxView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/manrope_semibold"
+                android:textColor="#ffff52"
+                android:textScaleX="0.6"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                tools:text="15" />
+
+            <!-- Current -->
+
+            <com.github.pwittchen.weathericonview.WeatherIconView
+                android:id="@+id/tempCurIconView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                app:layout_constraintBottom_toTopOf="@id/tempMinView"
+                app:layout_constraintEnd_toStartOf="@id/tempCurTextView"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="@id/tempMinView"
+                app:weatherIconColor="@android:color/white"
+                app:weatherIconResource="@string/wi_day_sunny_overcast"
+                app:weatherIconSize="14" />
+
+            <TextView
+                android:id="@+id/tempCurTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="2dp"
+                android:fontFamily="@font/manrope_semibold"
+                android:gravity="center_horizontal"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:textColor="#fff"
+                android:textScaleX="0.8"
+                app:layout_constraintBottom_toTopOf="@id/tempMinView"
+                app:layout_constraintEnd_toEndOf="@id/tempMaxView"
+                app:layout_constraintStart_toEndOf="@id/tempCurIconView"
+                tools:text="15°C" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.artemchep.essence.ui.views.arc.ArcLayout>
+
+</com.artemchep.essence.ui.views.WatchFaceView>
