@@ -13,10 +13,10 @@ import com.artemchep.essence.R
 import com.artemchep.essence.domain.models.FailureScreen
 import com.artemchep.essence.domain.models.LoadingScreen
 import com.artemchep.essence.domain.models.OkScreen
+import com.artemchep.essence.service.WatchFaceService
 import com.artemchep.essence.ui.adapter.MainAdapter
 import com.artemchep.essence.ui.interfaces.OnItemClickListener
 import com.artemchep.essence.ui.model.ConfigItem
-import com.artemchep.essence.ui.watchface.WatchFaceService
 import com.artemchep.essence.viewmodel.ComplicationViewModel
 import kotlinx.android.synthetic.main.activity_config_complications.*
 
