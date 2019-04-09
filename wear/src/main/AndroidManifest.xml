@@ -36,7 +36,7 @@
             android:value="true" />
 
         <service
-            android:name="com.artemchep.essence.ui.watchface.WatchFaceService"
+            android:name="com.artemchep.essence.service.WatchFaceService"
             android:label="@string/watchface_name"
             android:permission="android.permission.BIND_WALLPAPER">
             <meta-data

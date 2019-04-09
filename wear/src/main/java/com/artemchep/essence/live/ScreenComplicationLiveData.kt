@@ -11,8 +11,8 @@ import com.artemchep.essence.domain.models.FailureScreen
 import com.artemchep.essence.domain.models.LoadingScreen
 import com.artemchep.essence.domain.models.OkScreen
 import com.artemchep.essence.domain.models.Screen
+import com.artemchep.essence.service.WatchFaceService
 import com.artemchep.essence.ui.model.ConfigItem
-import com.artemchep.essence.ui.watchface.WatchFaceService
 import kotlinx.coroutines.isActive
 import java.util.concurrent.Executors
 
