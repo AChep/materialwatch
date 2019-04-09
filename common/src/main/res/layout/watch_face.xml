@@ -62,13 +62,9 @@
 
             <TextView
                 android:id="@+id/complication5TextView"
+                style="@style/WatchFaceComplication"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:drawablePadding="2dp"
-                android:fontFamily="@font/manrope_semibold"
-                android:gravity="center_horizontal"
-                android:textColor="#fff"
-                android:textScaleX="0.6"
                 app:layout_constrainedWidth="true"
                 app:layout_constraintEnd_toStartOf="@id/complication6TextView"
                 app:layout_constraintHorizontal_chainStyle="packed"
@@ -77,19 +73,15 @@
 
             <TextView
                 android:id="@+id/complication6TextView"
+                style="@style/WatchFaceComplication"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
-                android:drawablePadding="2dp"
-                android:fontFamily="@font/manrope_semibold"
-                android:gravity="center_horizontal"
-                android:textColor="#fff"
-                android:textScaleX="0.6"
                 app:layout_constrainedWidth="true"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/complication5TextView"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:text="David ehllo David ehllo David ehllo David ehllo David ehllo David ehllo David ehllo David ehllo David ehllo David ehllo David ehllo David ehllo " />
+                tools:text="@tools:sample/lorem/random" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -117,13 +109,9 @@
 
             <TextView
                 android:id="@+id/complication3TextView"
+                style="@style/WatchFaceComplication"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:drawablePadding="2dp"
-                android:fontFamily="@font/manrope_semibold"
-                android:gravity="center_horizontal"
-                android:textColor="#fff"
-                android:textScaleX="0.6"
                 app:layout_constrainedWidth="true"
                 app:layout_constraintEnd_toStartOf="@id/complication4TextView"
                 app:layout_constraintHorizontal_chainStyle="packed"
@@ -132,14 +120,10 @@
 
             <TextView
                 android:id="@+id/complication4TextView"
+                style="@style/WatchFaceComplication"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
-                android:drawablePadding="2dp"
-                android:fontFamily="@font/manrope_semibold"
-                android:gravity="center_horizontal"
-                android:textColor="#fff"
-                android:textScaleX="0.6"
                 app:layout_constrainedWidth="true"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/complication3TextView"
@@ -171,13 +155,9 @@
 
             <TextView
                 android:id="@+id/complication2TextView"
+                style="@style/WatchFaceComplication"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:drawablePadding="2dp"
-                android:fontFamily="@font/manrope_semibold"
-                android:gravity="center_horizontal"
-                android:textColor="#fff"
-                android:textScaleX="0.6"
                 app:layout_constrainedWidth="true"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/complication1TextView"
@@ -187,14 +167,10 @@
 
             <TextView
                 android:id="@+id/complication1TextView"
+                style="@style/WatchFaceComplication"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
-                android:drawablePadding="2dp"
-                android:fontFamily="@font/manrope_semibold"
-                android:gravity="center_horizontal"
-                android:textColor="#fff"
-                android:textScaleX="0.6"
                 app:layout_constrainedWidth="true"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -225,11 +201,10 @@
 
             <TextView
                 android:id="@+id/tempMinView"
+                style="@style/WatchFaceComplication"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/manrope_semibold"
                 android:textColor="#64c1ff"
-                android:textScaleX="0.6"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintHorizontal_chainStyle="packed"
                 app:layout_constraintStart_toStartOf="parent"
@@ -263,11 +238,10 @@
 
             <TextView
                 android:id="@+id/tempMaxView"
+                style="@style/WatchFaceComplication"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/manrope_semibold"
                 android:textColor="#ffff52"
-                android:textScaleX="0.6"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 tools:text="15" />
@@ -279,7 +253,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
-                app:layout_constraintBottom_toTopOf="@id/tempMinView"
+                android:layout_marginBottom="4dp"
+                app:layout_constraintBottom_toTopOf="@id/tempProgressView"
                 app:layout_constraintEnd_toStartOf="@id/tempCurTextView"
                 app:layout_constraintHorizontal_chainStyle="packed"
                 app:layout_constraintStart_toStartOf="@id/tempMinView"
@@ -289,16 +264,14 @@
 
             <TextView
                 android:id="@+id/tempCurTextView"
+                style="@style/WatchFaceComplication"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="2dp"
-                android:fontFamily="@font/manrope_semibold"
-                android:gravity="center_horizontal"
-                android:paddingStart="4dp"
-                android:paddingEnd="4dp"
-                android:textColor="#fff"
+                android:layout_marginBottom="4dp"
                 android:textScaleX="0.8"
-                app:layout_constraintBottom_toTopOf="@id/tempMinView"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toTopOf="@id/tempProgressView"
                 app:layout_constraintEnd_toEndOf="@id/tempMaxView"
                 app:layout_constraintStart_toEndOf="@id/tempCurIconView"
                 tools:text="15°C" />

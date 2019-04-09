@@ -19,6 +19,8 @@ class ArcLayout @kotlin.jvm.JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr) {
 
+    private var bitmapCache: Bitmap? = null
+
     private var surface: Surface? = null
 
     private val algorithm: ArcAlgorithm = if (isInEditMode) {
@@ -35,9 +37,15 @@ class ArcLayout @kotlin.jvm.JvmOverloads constructor(
     }
 
     override fun dispatchDraw(canvas: Canvas) {
-        val s = prepareSurface()
-        super.dispatchDraw(s.canvas)
-        val b = algorithm.bend(s.bitmap)
+        val b = bitmapCache ?: run {
+            // Draw and bend the content
+            // of a frame.
+            val s = prepareSurface()
+            super.dispatchDraw(s.canvas)
+            return@run algorithm.bend(s.bitmap)
+        }.also {
+            bitmapCache = it
+        }
 
         // Draw the resulting
         // bitmap
@@ -57,6 +65,10 @@ class ArcLayout @kotlin.jvm.JvmOverloads constructor(
                 val canvas = Canvas(bitmap)
                 return@run Surface(bitmap, canvas)
             }
+    }
+
+    fun notifyChildrenChanged() {
+        bitmapCache = null
     }
 
     private inner class Surface(

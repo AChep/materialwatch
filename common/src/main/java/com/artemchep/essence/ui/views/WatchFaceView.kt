@@ -2,11 +2,15 @@ package com.artemchep.essence.ui.views
 
 import android.content.Context
 import android.content.res.ColorStateList
+import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
+import android.os.SystemClock
 import android.text.format.DateFormat
 import android.util.AttributeSet
+import android.util.Log
 import android.util.TypedValue
+import android.view.View
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.graphics.ColorUtils
@@ -22,9 +26,11 @@ import com.artemchep.essence.domain.models.Visibility
 import com.artemchep.essence.domain.models.Weather
 import com.artemchep.essence.ui.format.format
 import com.artemchep.essence.ui.format.formatRich
+import com.artemchep.essence.ui.views.arc.ArcLayout
 import com.artemchep.essence_common.R
 import kotlinx.android.synthetic.main.watch_face.view.*
 import java.util.*
+import kotlin.math.PI
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -38,16 +44,13 @@ class WatchFaceView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr) {
 
-    private var iconSize: Int = 0
-
-    override fun onFinishInflate() {
-        super.onFinishInflate()
-        WATCH_COMPLICATIONS.forEach { id ->
-            findComplicationViewById(id).tag = id
-        }
-
-        iconSize = context.resources.getDimensionPixelSize(R.dimen.watch_face_icon_size)
+    companion object {
+        private const val TAG = "WatchFaceView"
     }
+
+    private val iconSize by lazy { context.resources.getDimensionPixelSize(R.dimen.watch_face_icon_size) }
+
+    private var weatherPrev: Either<Throwable, Weather>? = null
 
     override fun hasOverlappingRendering(): Boolean = false
 
@@ -126,6 +129,12 @@ class WatchFaceView @JvmOverloads constructor(
     private fun formatTwoDigitNumber(n: Int) = if (n <= 9) "0$n" else "$n"
 
     fun setWeather(weather: Either<Throwable, Weather>) {
+        fun setNoTodayWeather() {
+            tempMinView.isVisible = false
+            tempMaxView.isVisible = false
+            tempProgressView.progress = 0
+        }
+
         when (weather) {
             is Either.Right -> weather.b.apply {
                 // Format current weather
@@ -136,6 +145,8 @@ class WatchFaceView @JvmOverloads constructor(
 
                 // Format today weather
                 if (today != null) {
+                    tempMinView.isVisible = true
+                    tempMaxView.isVisible = true
                     tempMinView.text = format(today.tempMin)
                     tempMaxView.text = format(today.tempMax)
 
@@ -159,19 +170,30 @@ class WatchFaceView @JvmOverloads constructor(
                             val endColor = 0xFFffff52.toInt()
                             it.setTint(ColorUtils.blendARGB(startColor, endColor, progress))
                         }
+                } else {
+                    setNoTodayWeather()
                 }
             }
             is Either.Left -> weather.a.apply {
                 tempCurTextView.text = when (this) {
-                    is ApiLimitReachedException -> "API limit error"
-                    is GeolocationAccessException -> "Access denied error"
-                    is GeolocationEmptyException -> "Unknown location error"
-                    else -> {
-                        "IO error"
-                    }
+                    is ApiLimitReachedException -> R.string.error_api_limit_reached
+                    is GeolocationAccessException -> R.string.error_geolocation_access
+                    is GeolocationEmptyException -> R.string.error_geolocation_empty
+                    else -> R.string.error_no_internet
+                }.let {
+                    context.getString(it)
                 }
                 tempCurIconView.isVisible = false
+                setNoTodayWeather()
             }
+        }
+
+        if (weatherPrev != weather) {
+            weatherPrev = weather
+
+            // Request to redraw the arc
+            // layout
+            tempCurTextView.getParentArcLayoutAndRetainInTag().notifyChildrenChanged()
         }
     }
 
@@ -186,8 +208,12 @@ class WatchFaceView @JvmOverloads constructor(
         complications.entries.forEach { (id, value) ->
             val complicationView = findComplicationViewById(id)
             with(complicationView) {
-                setComplicationIcon(value.first)
-                setComplicationContentText(value.second)
+                val hasChanged =
+                    setComplicationIcon(value.first)
+                        .or(setComplicationContentText(value.second))
+                if (hasChanged) {
+                    getParentArcLayoutAndRetainInTag().notifyChildrenChanged()
+                }
             }
         }
     }
@@ -202,13 +228,27 @@ class WatchFaceView @JvmOverloads constructor(
         else -> throw IllegalArgumentException("Unknown watch face complication id [$id]")
     }
 
+    private fun View.getParentArcLayout(): ArcLayout {
+        return if (this is ArcLayout) this else (parent as View).getParentArcLayout()
+    }
+
+    private fun View.getParentArcLayoutAndRetainInTag(): ArcLayout {
+        return tag as? ArcLayout ?: getParentArcLayout().also(::setTag)
+    }
+
     /**
      * Sets the complication icon to start of the view
      * @see setComplicationContentText
      */
-    private fun TextView.setComplicationIcon(icon: Drawable?) {
+    private fun TextView.setComplicationIcon(icon: Drawable?): Boolean {
+        val drawablePrev = compoundDrawables.firstOrNull { it != null }
+        if (drawablePrev === icon) {
+            return false
+        }
+
         val drawable = icon?.applyIconBounds()
         this.setCompoundDrawables(drawable, null, null, null)
+        return true
     }
 
     /**
@@ -216,10 +256,16 @@ class WatchFaceView @JvmOverloads constructor(
      * if text is `null`.
      * @see setComplicationIcon
      */
-    private fun TextView.setComplicationContentText(text: CharSequence?) {
+    private fun TextView.setComplicationContentText(text: CharSequence?): Boolean {
         val trimmedText = text?.trim()
+        val trimmedTextPrev = this.text
+        if (trimmedTextPrev == trimmedText) {
+            return false
+        }
+
         this.isVisible = !trimmedText.isNullOrEmpty()
         this.text = trimmedText
+        return true
     }
 
     /**
@@ -229,6 +275,17 @@ class WatchFaceView @JvmOverloads constructor(
     private fun Drawable.applyIconBounds(): Drawable {
         setBounds(0, 0, (iconSize * 0.8).toInt(), iconSize)
         return this
+    }
+
+    // ---- Rendering ----
+
+    override fun draw(canvas: Canvas?) {
+        val beginTime = SystemClock.currentThreadTimeMillis()
+
+        super.draw(canvas)
+
+        val endTime = SystemClock.currentThreadTimeMillis()
+        Log.i(TAG, "Drawing a watch face took ${endTime - beginTime}ms.")
     }
 
 }

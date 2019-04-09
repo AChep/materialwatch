@@ -224,15 +224,10 @@ open class WatchFaceService : CanvasWatchFaceService() {
 
         override fun onDraw(canvas: Canvas, bounds: Rect) {
             super.onDraw(canvas, bounds)
-            val beginTime = SystemClock.currentThreadTimeMillis()
-
             view.apply {
                 if (isLayoutRequested) performViewLayout()
                 draw(canvas)
             }
-
-            val endTime = SystemClock.currentThreadTimeMillis()
-            Log.i(TAG, "Drawing a watch face took ${endTime - beginTime}ms.")
         }
 
     }

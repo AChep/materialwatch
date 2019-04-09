@@ -16,6 +16,10 @@
     <string name="config_accent">Accent color</string>
     <string name="config_about">About</string>
 
+    <string name="error_no_internet">IO error</string>
+    <string name="error_api_limit_reached">API limit error</string>
+    <string name="error_geolocation_access">Access denied error</string>
+    <string name="error_geolocation_empty">Unknown location error</string>
     <string name="error">Something went wrong, tap to retry</string>
     <string name="retry">Retry</string>
 
