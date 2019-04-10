@@ -48,6 +48,11 @@ class WeatherLiveData(
     override fun onActive() {
         super.onActive()
         launch {
+            produceFromLive(geolocationLiveData).consumeEach {
+                updateWeather()
+            }
+        }
+        launch {
             produceFromLive(ambientModeLiveData).consumeEach {
                 updateWeather()
             }
