@@ -1,11 +1,12 @@
 package com.artemchep.essence.domain.live.base
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BroadcastChannel
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -28,7 +29,10 @@ abstract class BaseLiveData<T> : LiveData<T>(), CoroutineScope {
         super.onInactive()
     }
 
-    protected inline fun <T> consumeEach(channel: BroadcastChannel<T>, crossinline block: (T) -> Unit) {
+    protected inline fun <T> consumeEach(
+        channel: BroadcastChannel<T>,
+        crossinline block: (T) -> Unit
+    ) {
         launch {
             channel.consumeEach(block)
         }

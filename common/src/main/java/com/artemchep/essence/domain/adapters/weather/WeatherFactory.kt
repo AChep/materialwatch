@@ -3,7 +3,6 @@ package com.artemchep.essence.domain.adapters.weather
 import com.artemchep.essence.domain.adapters.weather.accuweather.WeatherAccuWeatherPortImpl
 import com.artemchep.essence.domain.adapters.weather.apixu.WeatherApixuPortImpl
 import com.artemchep.essence.domain.adapters.weather.darksky.WeatherDarkSkyPortImpl
-import com.artemchep.essence.domain.adapters.weather.openweathermap.WeatherOpenWeatherMapPortImpl
 import com.artemchep.essence_common.BuildConfig
 
 fun WeatherPort() =

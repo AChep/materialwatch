@@ -30,7 +30,6 @@ import com.artemchep.essence.ui.views.arc.ArcLayout
 import com.artemchep.essence_common.R
 import kotlinx.android.synthetic.main.watch_face.view.*
 import java.util.*
-import kotlin.math.PI
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt

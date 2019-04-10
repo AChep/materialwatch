@@ -1,9 +1,7 @@
 package com.artemchep.essence.domain.viewmodel
 
-import android.app.Activity
 import android.app.Application
 import android.content.pm.PackageManager
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel

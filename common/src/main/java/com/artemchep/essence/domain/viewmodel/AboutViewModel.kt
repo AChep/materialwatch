@@ -3,7 +3,6 @@ package com.artemchep.essence.domain.viewmodel
 import android.app.Application
 import android.content.pm.PackageManager
 import androidx.core.text.parseAsHtml
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.artemchep.essence.domain.viewmodel.base.BaseViewModel
 import com.artemchep.essence.messageChannel

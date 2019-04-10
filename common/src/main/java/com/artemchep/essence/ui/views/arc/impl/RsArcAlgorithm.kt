@@ -1,17 +1,13 @@
 package com.artemchep.essence.ui.views.arc.impl
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.os.SystemClock
-import android.util.Log
-import androidx.core.graphics.ColorUtils
-import androidx.core.graphics.get
-import com.artemchep.essence.ui.views.arc.ArcAlgorithm
-import kotlin.math.*
 import android.renderscript.Allocation
-import com.artemchep.essence.rs.ScriptC_arc
-import android.content.Context
-import android.renderscript.Element
 import android.renderscript.RenderScript
+import android.util.Log
+import com.artemchep.essence.rs.ScriptC_arc
+import com.artemchep.essence.ui.views.arc.ArcAlgorithm
 
 /**
  * @author Artem Chepurnoy
