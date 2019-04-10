@@ -12,7 +12,7 @@ android {
         applicationId "com.artemchep.essence"
         minSdkVersion sdk_min
         targetSdkVersion sdk_target
-        versionCode version_code
+        versionCode version_code * 1000 + 1
         versionName version_name
     }
 
