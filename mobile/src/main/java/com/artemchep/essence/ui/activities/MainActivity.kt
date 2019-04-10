@@ -5,6 +5,7 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
+import androidx.core.app.ActivityCompat
 import androidx.core.graphics.luminance
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -14,7 +15,6 @@ import com.artemchep.config.Config
 import com.artemchep.essence.ACTION_PERMISSIONS_CHANGED
 import com.artemchep.essence.Cfg
 import com.artemchep.essence.R
-import com.artemchep.essence.RUNTIME_PERMISSIONS
 import com.artemchep.essence.domain.adapters.weather.WeatherPort
 import com.artemchep.essence.domain.models.OkScreen
 import com.artemchep.essence.domain.models.SETTINGS_ITEM_ACCENT
@@ -33,11 +33,6 @@ import com.artemchep.essence.ui.model.ConfigItem
 import com.artemchep.essence.ui.views.WatchFaceView
 import com.google.android.gms.wearable.DataClient
 import com.google.android.gms.wearable.Wearable
-import com.karumi.dexter.Dexter
-import com.karumi.dexter.MultiplePermissionsReport
-import com.karumi.dexter.PermissionToken
-import com.karumi.dexter.listener.PermissionRequest
-import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.layout_toolbar.*
 
@@ -169,29 +164,21 @@ class MainActivity : ActivityBase(),
                 dialog.show(supportFragmentManager, PickerDialog.TAG)
             }
         })
+        showGrantRuntimePermissionsEvent.observe(this@MainActivity, Observer { event ->
+            val data = event.consume()
+            if (data != null) {
+                val activity = this@MainActivity
+                ActivityCompat.requestPermissions(
+                    activity,
+                    data.permissions.toTypedArray(),
+                    data.requestCode
+                )
+            }
+        })
     }
 
     private fun setupRuntimePermissions() {
-        val listener = object : MultiplePermissionsListener {
-            override fun onPermissionsChecked(report: MultiplePermissionsReport) {
-                val localBroadcastManager = LocalBroadcastManager.getInstance(this@MainActivity)
-                val intent = Intent(ACTION_PERMISSIONS_CHANGED)
-                localBroadcastManager.sendBroadcast(intent)
-            }
-
-            override fun onPermissionRationaleShouldBeShown(
-                permissions: MutableList<PermissionRequest>,
-                token: PermissionToken
-            ) {
-                token.continuePermissionRequest()
-            }
-        }
-
-        Dexter
-            .withActivity(this)
-            .withPermissions(RUNTIME_PERMISSIONS)
-            .withListener(listener)
-            .check()
+        settingsViewModel.ensureRuntimePermissions()
     }
 
     override fun onResume() {
@@ -203,6 +190,13 @@ class MainActivity : ActivityBase(),
     override fun onPause() {
         Cfg.removeObserver(this)
         super.onPause()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        val localBroadcastManager = LocalBroadcastManager.getInstance(this@MainActivity)
+        val intent = Intent(ACTION_PERMISSIONS_CHANGED)
+        localBroadcastManager.sendBroadcast(intent)
     }
 
     override fun onConfigChanged(keys: Set<String>) {

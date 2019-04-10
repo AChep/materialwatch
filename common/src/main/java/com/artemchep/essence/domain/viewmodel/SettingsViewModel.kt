@@ -2,10 +2,14 @@ package com.artemchep.essence.domain.viewmodel
 
 import android.app.Activity
 import android.app.Application
+import android.content.pm.PackageManager
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.artemchep.essence.Cfg
+import com.artemchep.essence.RUNTIME_PERMISSIONS
 import com.artemchep.essence.domain.live.SettingsLiveData
 import com.artemchep.essence.domain.models.*
 import com.artemchep.essence.domain.viewmodel.base.BaseViewModel
@@ -26,6 +30,7 @@ class SettingsViewModel(
     companion object {
         private const val REQUEST_CODE_ACCENT_COLOR = 100
         private const val REQUEST_CODE_THEME = 101
+        private const val REQUEST_CODE_RP = 102
     }
 
     /**
@@ -74,6 +79,22 @@ class SettingsViewModel(
     val showDetailsEvent = MutableLiveData<Event<Int>>()
 
     val showPickerEvent = MutableLiveData<Event<PickerSource>>()
+
+    val showGrantRuntimePermissionsEvent = MutableLiveData<Event<RuntimePermissionsRequest>>()
+
+    fun ensureRuntimePermissions() {
+        val permissions = RUNTIME_PERMISSIONS
+            .filter {
+                ContextCompat.checkSelfPermission(context, it) ==
+                        PackageManager.PERMISSION_DENIED
+            }
+
+        if (permissions.isNotEmpty()) {
+            val request = RuntimePermissionsRequest(permissions, REQUEST_CODE_THEME)
+            val event = Event(request)
+            showGrantRuntimePermissionsEvent.postValue(event)
+        }
+    }
 
     fun result(requestCode: Int, key: String?) {
         if (key == null) {

@@ -3,6 +3,7 @@ package com.artemchep.essence.ui.activities
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -10,23 +11,21 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.artemchep.essence.ACTION_PERMISSIONS_CHANGED
 import com.artemchep.essence.Cfg
 import com.artemchep.essence.R
-import com.artemchep.essence.RUNTIME_PERMISSIONS
 import com.artemchep.essence.domain.models.*
 import com.artemchep.essence.domain.viewmodel.SettingsViewModel
 import com.artemchep.essence.ui.adapter.MainAdapter
 import com.artemchep.essence.ui.interfaces.OnItemClickListener
 import com.artemchep.essence.ui.model.ConfigItem
-import com.karumi.dexter.Dexter
-import com.karumi.dexter.MultiplePermissionsReport
-import com.karumi.dexter.PermissionToken
-import com.karumi.dexter.listener.PermissionRequest
-import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import kotlinx.android.synthetic.main.activity_config.*
 
 /**
  * @author Artem Chepurnoy
  */
 class MainActivity : ActivityBase(), OnItemClickListener<ConfigItem> {
+
+    companion object {
+        private const val RUNTIME_PERMISSIONS_REQUEST_CODE = 100
+    }
 
     private lateinit var adapter: MainAdapter
 
@@ -101,33 +100,28 @@ class MainActivity : ActivityBase(), OnItemClickListener<ConfigItem> {
                 startActivityForResult(intent, data.requestCode)
             }
         })
+        showGrantRuntimePermissionsEvent.observe(this@MainActivity, Observer { event ->
+            val data = event.consume()
+            if (data != null) {
+                val activity = this@MainActivity
+                ActivityCompat.requestPermissions(
+                    activity,
+                    data.permissions.toTypedArray(),
+                    data.requestCode
+                )
+            }
+        })
     }
 
     private fun setupRuntimePermissions() {
-        val listener = object : MultiplePermissionsListener {
-            override fun onPermissionsChecked(report: MultiplePermissionsReport) {
-                val localBroadcastManager = LocalBroadcastManager.getInstance(this@MainActivity)
-                val intent = Intent(ACTION_PERMISSIONS_CHANGED)
-                localBroadcastManager.sendBroadcast(intent)
-            }
-
-            override fun onPermissionRationaleShouldBeShown(
-                permissions: MutableList<PermissionRequest>,
-                token: PermissionToken
-            ) {
-                token.continuePermissionRequest()
-            }
-        }
-
-        Dexter
-            .withActivity(this)
-            .withPermissions(RUNTIME_PERMISSIONS)
-            .withListener(listener)
-            .check()
+        viewModel.ensureRuntimePermissions()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        val localBroadcastManager = LocalBroadcastManager.getInstance(this@MainActivity)
+        val intent = Intent(ACTION_PERMISSIONS_CHANGED)
+        localBroadcastManager.sendBroadcast(intent)
 
         val key = data?.getStringExtra(PickerActivity.RESULT_KEY)
         viewModel.result(requestCode, key)
