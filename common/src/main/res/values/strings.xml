@@ -56,7 +56,7 @@
         <b>%1$s</b>&nbsp;v%2$s
     ]]></string>
     <string name="about_content"><![CDATA[
-        <b>essence is a simple watch face released under GPLv3 license.</b><br/>
+        <b>Essence is a beautiful watch face that is actually circular.</b><br/>
         <br/>
         Many thanks to JetBrains for <b>Kotlin</b> and Google for the <b>Support Library</b>.<br/>
         <br/>
