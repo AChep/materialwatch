@@ -1,12 +1,10 @@
 package com.artemchep.essence.domain.adapters.weather.accuweather
 
 import arrow.core.Either
+import com.artemchep.essence.domain.adapters.weather.accuweather.beans.ForecastCurrentlyBean
 import com.artemchep.essence.domain.adapters.weather.accuweather.beans.ForecastDailyBean
 import com.artemchep.essence.domain.adapters.weather.accuweather.beans.GeopositionBean
-import com.artemchep.essence.domain.models.Geolocation
-import com.artemchep.essence.domain.models.Temperature
-import com.artemchep.essence.domain.models.Weather
-import com.artemchep.essence.domain.models.WeatherToday
+import com.artemchep.essence.domain.models.*
 import com.artemchep.essence.domain.ports.WeatherPort
 import com.github.kittinunf.fuel.core.Request
 import com.github.kittinunf.fuel.coroutines.awaitObjectResponse
@@ -28,13 +26,16 @@ class WeatherAccuWeatherPortImpl : WeatherPort {
     @ImplicitReflectionSerializer
     override suspend fun getWeather(geolocation: Geolocation): Either<Throwable, Weather> {
         val gbean = createGeopositionRequest(geolocation).await<GeopositionBean>()
-//        val current = createCurrentlyRequest(geolocation).awa.await<ForecastCurrentlyBean>()
+        val current = createCurrentlyRequest(gbean).await<ForecastCurrentlyBean>()
         val daily = createDailyRequest(gbean).await<ForecastDailyBean>()
 
         val today = daily.days.first()
         return Either.right(
             Weather(
-                current = null,
+                current = WeatherCurrent(
+                    wind = Wind(mps = current.wind.speed.metric.value),
+                    temp = Temperature(c = current.temp.metric.value)
+                ),
                 today = WeatherToday(
                     tempMax = Temperature(c = today.temp.max.value),
                     tempMin = Temperature(c = today.temp.min.value)
