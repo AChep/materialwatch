@@ -1,16 +1,14 @@
 package com.artemchep.essence.domain.live
 
-import androidx.lifecycle.LiveData
 import com.artemchep.essence.Cfg
-import com.artemchep.essence.domain.live.base.BaseLiveData
+import com.artemchep.essence.domain.DEFAULT_DEBOUNCE
+import com.artemchep.essence.domain.live.base.Live3
 import com.artemchep.essence.domain.models.AmbientMode
 import com.artemchep.essence.domain.models.Visibility
-import com.artemchep.essence.extensions.launchObserver
-import com.artemchep.essence.extensions.produceFromLive
-import com.artemchep.essence.extensions.receive
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 /**
  * @author Artem Chepurnoy
@@ -21,33 +19,47 @@ class VisibilityLiveData(
      * The emitter of the ambient mode state
      * data.
      */
-    private val ambientModeLiveData: LiveData<AmbientMode>
-) : BaseLiveData<Visibility>() {
+    private val ambientModeLiveData: Live3<AmbientMode>
+) : Live3<Visibility>(Visibility()) {
+
+    private var visibilityJob: Job? = null
 
     override fun onActive() {
         super.onActive()
-        launchObserver(config) { updateVisibility() }
         launch {
-            produceFromLive(ambientModeLiveData).consumeEach { updateVisibility() }
+            ambientModeLiveData.openSubscription(this)
+                .consumeEach {
+                    updateVisibility()
+                }
         }
 
         updateVisibility()
     }
 
     private fun updateVisibility() {
-        val inAmbientMode = runBlocking { ambientModeLiveData.receive().isOn }
-        val visibility = Visibility(
+        visibilityJob?.cancel()
+        visibilityJob = launch {
+            delay(DEFAULT_DEBOUNCE)
+
+            val theme = getVisibility()
+            if (theme != value) {
+                push(theme)
+            }
+        }.apply {
+            invokeOnCompletion {
+                visibilityJob = null
+            }
+        }
+    }
+
+    private fun getVisibility(): Visibility {
+        val inAmbientMode = ambientModeLiveData.value.isOn
+        return Visibility(
             isTopStartVisible = !inAmbientMode,
             isTopEndVisible = !inAmbientMode,
             isBottomStartVisible = !inAmbientMode,
             isBottomEndVisible = !inAmbientMode
         )
-
-        // Post value only if something
-        // have changed.
-        if (visibility != value) {
-            postValue(visibility)
-        }
     }
 
 }

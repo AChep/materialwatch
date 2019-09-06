@@ -16,6 +16,7 @@ import com.artemchep.essence.ACTION_PERMISSIONS_CHANGED
 import com.artemchep.essence.Cfg
 import com.artemchep.essence.R
 import com.artemchep.essence.domain.adapters.weather.WeatherPort
+import com.artemchep.essence.domain.live.base.injectObserver
 import com.artemchep.essence.domain.models.OkScreen
 import com.artemchep.essence.domain.models.SETTINGS_ITEM_ACCENT
 import com.artemchep.essence.domain.models.SETTINGS_ITEM_THEME
@@ -111,11 +112,11 @@ class MainActivity : ActivityBase(),
     }
 
     private fun WatchFaceViewModel.setup() {
-        timeLiveData.observe(this@MainActivity, Observer(watchFaceView::setTime))
-        weatherLiveData.observe(this@MainActivity, Observer(watchFaceView::setWeather))
-        visibilityLiveData.observe(this@MainActivity, Observer(watchFaceView::setVisibility))
-        complicationsLiveData.observe(this@MainActivity, Observer(watchFaceView::setComplications))
-        themeLiveData.observe(this@MainActivity, Observer { theme ->
+        timeLiveData.injectObserver(this@MainActivity) { watchFaceView.setTime(it) }
+        weatherLiveData.injectObserver(this@MainActivity) { watchFaceView.setWeather(it) }
+        visibilityLiveData.injectObserver(this@MainActivity) { watchFaceView.setVisibility(it) }
+        complicationsLiveData.injectObserver(this@MainActivity) { watchFaceView.setComplications(it) }
+        themeLiveData.injectObserver(this@MainActivity) { theme ->
             // Get the background color from a theme and set it
             // separately from a theme.
             val backgroundColor = theme.backgroundColor
@@ -126,7 +127,7 @@ class MainActivity : ActivityBase(),
                 val bg = background as? CircleDrawable ?: CircleDrawable().also(::setBackground)
                 bg.color = backgroundColor
             }
-        })
+        }
     }
 
     private fun setupSettingsViewModel() {

@@ -2,8 +2,7 @@ package com.artemchep.essence.domain.live
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.util.Log
-import androidx.lifecycle.LiveData
+import androidx.annotation.WorkerThread
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import arrow.core.Either
 import arrow.core.toOption
@@ -11,17 +10,13 @@ import com.artemchep.essence.ACTION_PERMISSIONS_CHANGED
 import com.artemchep.essence.Cfg
 import com.artemchep.essence.domain.exceptions.GeolocationAccessException
 import com.artemchep.essence.domain.exceptions.GeolocationEmptyException
-import com.artemchep.essence.domain.live.base.BaseLiveData
+import com.artemchep.essence.domain.live.base.Live3
 import com.artemchep.essence.domain.models.Geolocation
 import com.artemchep.essence.domain.models.Moment
 import com.artemchep.essence.domain.models.Time
 import com.artemchep.essence.extensions.await
 import com.artemchep.essence.extensions.produce
-import com.artemchep.essence.extensions.produceFromLive
-import com.artemchep.essence.extensions.receive
-import com.artemchep.essence.ifDebug
 import com.google.android.gms.location.LocationServices
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
@@ -36,8 +31,8 @@ class GeolocationLiveData(
     /**
      * The emitter of the time
      */
-    private val timeLiveData: LiveData<Time>
-) : BaseLiveData<Moment<Either<Throwable, Geolocation>>>() {
+    private val timeLiveData: Live3<Time>
+) : Live3<Moment<Either<Throwable, Geolocation>>>(Moment.now(Either.left(GeolocationEmptyException()))) {
 
     companion object {
         private const val TAG = "GeolocationLiveData"
@@ -47,19 +42,19 @@ class GeolocationLiveData(
 
     private var geolocationJob: Job? = null
 
-    init {
-        value = Moment.now(Either.left(GeolocationEmptyException()))
-    }
-
     override fun onActive() {
         super.onActive()
         launch {
-            produceFromLive(timeLiveData).consumeEach {
-                val prevTime = value?.time
-                if (prevTime == null || (it - prevTime).millis > config.geolocationUpdatePeriod) {
-                    updateGeolocation()
+            timeLiveData.openSubscription(this)
+                .consumeEach {
+                    if (value.unbox().let { e ->
+                            e is Either.Left &&
+                                    (e.a is GeolocationEmptyException ||
+                                            e.a is GeolocationAccessException)
+                        } || (it - value.time).millis > config.geolocationUpdatePeriod) {
+                        updateGeolocation()
+                    }
                 }
-            }
         }
 
         // Listen to the changes in runtime permissions and
@@ -72,7 +67,7 @@ class GeolocationLiveData(
                     addAction(ACTION_PERMISSIONS_CHANGED)
                 }
             ).consumeEach {
-                val failedPrevTime = receive().value.isRight()
+                val failedPrevTime = value.unbox().isRight()
                 if (failedPrevTime) {
                     updateGeolocation()
                 }
@@ -87,22 +82,11 @@ class GeolocationLiveData(
      * posting it.
      */
     private fun updateGeolocation() {
-        if (geolocationJob?.isActive != true) {
-            ifDebug {
-                Log.d(TAG, "Launching an update job.")
-            }
-
-            geolocationJob = launch(Dispatchers.IO) {
-                val value = getGeolocation()
-                postValue(value)
-            }
-        } else ifDebug {
-            Log.d(TAG, "Ignoring an update job.")
-        }
+        pushWithDebounce(this, factory = { getGeolocation() })
     }
 
     @SuppressLint("MissingPermission")
-    @Throws(GeolocationAccessException::class)
+    @WorkerThread
     private fun getGeolocation(): Moment<Either<Throwable, Geolocation>> {
         val either = try {
             fusedLocationClient.lastLocation.await()

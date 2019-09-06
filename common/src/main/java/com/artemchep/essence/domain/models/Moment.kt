@@ -10,4 +10,6 @@ data class Moment<T>(
     companion object {
         fun <T> now(value: T) = Moment(Time(), value)
     }
+
+    fun unbox(): T = value
 }

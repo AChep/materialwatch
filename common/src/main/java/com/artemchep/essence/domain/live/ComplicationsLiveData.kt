@@ -2,21 +2,18 @@ package com.artemchep.essence.domain.live
 
 import android.content.Context
 import android.graphics.drawable.Drawable
-import android.util.Log
 import android.util.SparseArray
 import androidx.core.util.forEach
-import androidx.lifecycle.LiveData
 import com.artemchep.essence.WATCH_COMPLICATIONS
-import com.artemchep.essence.domain.live.base.BaseLiveData
+import com.artemchep.essence.domain.DEFAULT_DEBOUNCE
+import com.artemchep.essence.domain.live.base.Live3
 import com.artemchep.essence.domain.models.AmbientMode
 import com.artemchep.essence.domain.models.Complication
 import com.artemchep.essence.domain.models.Time
-import com.artemchep.essence.extensions.produceFromLive
-import com.artemchep.essence.extensions.receive
-import com.artemchep.essence.ifDebug
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 /**
  * @author Artem Chepurnoy
@@ -26,42 +23,67 @@ class ComplicationsLiveData(
     /**
      * The emitter of the time
      */
-    private val timeLiveData: LiveData<Time>,
+    private val timeLiveData: Live3<Time>,
     /**
      * The emitter of the ambient mode state
      * data.
      */
-    private val ambientModeLiveData: LiveData<AmbientMode>,
+    private val ambientModeLiveData: Live3<AmbientMode>,
     /**
      * The emitter of the complications
      * data.
      */
-    private val complicationsRawLiveData: LiveData<SparseArray<out (Context, Time) -> Complication>>
-) : BaseLiveData<Map<Int, Pair<Drawable?, String?>>>() {
+    private val complicationsRawLiveData: Live3<SparseArray<out (Context, Time) -> Complication>>
+) : Live3<Map<Int, Pair<Drawable?, String?>>>(HashMap()) {
 
     companion object {
         private const val TAG = "ComplicationsLiveData"
     }
 
+    private var complicationsJob: Job? = null
+
     override fun onActive() {
         super.onActive()
         launch {
-            produceFromLive(complicationsRawLiveData).consumeEach { updateComplications() }
+            complicationsRawLiveData.openSubscription(this)
+                .consumeEach {
+                    updateComplications()
+                }
         }
         launch {
-            produceFromLive(ambientModeLiveData).consumeEach { updateComplications() }
+            ambientModeLiveData.openSubscription(this)
+                .consumeEach {
+                    updateComplications()
+                }
         }
         launch {
-            produceFromLive(timeLiveData).consumeEach { updateComplications() }
+            timeLiveData.openSubscription(this)
+                .consumeEach {
+                    updateComplications()
+                }
         }
 
         updateComplications()
     }
 
     private fun updateComplications() {
-        val sparse = runBlocking { complicationsRawLiveData.receive() }
-        val ambientMode = runBlocking { ambientModeLiveData.receive() }.isOn
-        val time = runBlocking { timeLiveData.receive() }
+        complicationsJob?.cancel()
+        complicationsJob = launch {
+            delay(DEFAULT_DEBOUNCE)
+
+            val geolocation = getComplications()
+            push(geolocation)
+        }.apply {
+            invokeOnCompletion {
+                complicationsJob = null
+            }
+        }
+    }
+
+    private fun getComplications(): Map<Int, Pair<Drawable?, String?>> {
+        val sparse = complicationsRawLiveData.value
+        val ambientMode = ambientModeLiveData.value.isOn
+        val time = timeLiveData.value
 
         // Form a map of new complications for current
         // conditions.
@@ -80,15 +102,11 @@ class ComplicationsLiveData(
                     }
                     ?: model.normalIconDrawable
 
-                map[watchFaceComplicationId] = icon to text?.toString()
+                map[watchFaceComplicationId] = icon to text.toString()
             }
         }
 
-        ifDebug {
-            Log.d(TAG, "Posting new complications: $map")
-        }
-
-        postValue(map)
+        return map
     }
 
 }

@@ -11,11 +11,15 @@ import android.util.SparseArray
 import android.view.LayoutInflater
 import android.view.SurfaceHolder
 import android.view.View
-import androidx.lifecycle.*
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
 import com.artemchep.essence.Cfg
 import com.artemchep.essence.R
 import com.artemchep.essence.WATCH_COMPLICATIONS
 import com.artemchep.essence.domain.adapters.weather.WeatherPort
+import com.artemchep.essence.domain.live.base.Live3
+import com.artemchep.essence.domain.live.base.injectObserver
 import com.artemchep.essence.domain.models.AmbientMode
 import com.artemchep.essence.domain.models.Complication
 import com.artemchep.essence.domain.models.Time
@@ -58,21 +62,12 @@ open class WatchFaceService : CanvasWatchFaceService() {
 
         // ---- Ports ----
 
-        private val timeLiveData = MutableLiveData<Time>()
-            .apply {
-                value = Time()
-            }
+        private val timeLiveData = Live3(Time())
 
-        private val ambientModeLiveData = MutableLiveData<AmbientMode>()
-            .apply {
-                value = AmbientMode.Off
-            }
+        private val ambientModeLiveData = Live3<AmbientMode>(AmbientMode.Off)
 
         private val complicationsRawLiveData =
-            MutableLiveData<SparseArray<out (Context, Time) -> Complication>>()
-                .apply {
-                    value = SparseArray()
-                }
+            Live3<SparseArray<out (Context, Time) -> Complication>>(SparseArray())
 
         private val weatherPort = WeatherPort()
 
@@ -116,29 +111,32 @@ open class WatchFaceService : CanvasWatchFaceService() {
 
         private fun WatchFaceViewModel.setup() {
             val lifecycle = this@WatchFaceEngine
-            themeLiveData.observe(lifecycle, createViewObserver(view::setTheme))
-            weatherLiveData.observe(lifecycle, createViewObserver(view::setWeather))
-            timeLiveData.observe(lifecycle, createViewObserver(view::setTime))
-            visibilityLiveData.observe(lifecycle, createViewObserver(view::setVisibility))
-            complicationsLiveData.observe(lifecycle, createViewObserver(view::setComplications))
+            themeLiveData.injectObserver(lifecycle, createViewObserver(view::setTheme))
+            weatherLiveData.injectObserver(lifecycle, createViewObserver(view::setWeather))
+            timeLiveData.injectObserver(lifecycle, createViewObserver(view::setTime))
+            visibilityLiveData.injectObserver(lifecycle, createViewObserver(view::setVisibility))
+            complicationsLiveData.injectObserver(
+                lifecycle,
+                createViewObserver(view::setComplications)
+            )
         }
 
         private inline fun <T> createViewObserver(crossinline block: (T) -> Unit) =
-            Observer<T> {
-                block(it)
+            { model: T ->
+                block(model)
                 postInvalidate()
             }
 
         override fun onTimeTick() {
             super.onTimeTick()
             val time = Time()
-            timeLiveData.postValue(time)
+            timeLiveData.pushWithDebounce(this, { time })
         }
 
         override fun onAmbientModeChanged(inAmbientMode: Boolean) {
             super.onAmbientModeChanged(inAmbientMode)
             val ambientMode = inAmbientMode.asAmbientMode()
-            ambientModeLiveData.postValue(ambientMode)
+            ambientModeLiveData.pushWithDebounce(this, { ambientMode })
         }
 
         override fun onComplicationDataUpdate(
@@ -186,7 +184,7 @@ open class WatchFaceService : CanvasWatchFaceService() {
                     .withLock {
                         complicationDataSparse.clone()
                     }
-                complicationsRawLiveData.postValue(sparse)
+                complicationsRawLiveData.pushWithDebounce(this@WatchFaceEngine, { sparse })
             }.apply {
                 invokeOnCompletion {
                     sendComplicationsJob = null

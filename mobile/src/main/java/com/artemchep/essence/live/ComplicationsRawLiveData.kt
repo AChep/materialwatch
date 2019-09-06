@@ -6,7 +6,7 @@ import android.util.SparseArray
 import androidx.core.util.set
 import com.artemchep.essence.R
 import com.artemchep.essence.WATCH_COMPLICATION_THIRD
-import com.artemchep.essence.domain.live.base.BaseLiveData
+import com.artemchep.essence.domain.live.base.Live3
 import com.artemchep.essence.domain.models.Complication
 import com.artemchep.essence.domain.models.Time
 import java.util.*
@@ -14,7 +14,8 @@ import java.util.*
 /**
  * @author Artem Chepurnoy
  */
-class ComplicationsRawLiveData : BaseLiveData<SparseArray<out (Context, Time) -> Complication>>() {
+class ComplicationsRawLiveData :
+    Live3<SparseArray<out (Context, Time) -> Complication>>(SparseArray()) {
 
     init {
         val sparse = SparseArray<(Context, Time) -> Complication>()

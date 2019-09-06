@@ -4,8 +4,11 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import com.artemchep.essence.domain.live.base.BaseLiveData
+import com.artemchep.essence.domain.DEFAULT_DEBOUNCE
+import com.artemchep.essence.domain.live.base.Live3
 import com.artemchep.essence.domain.models.Time
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 
@@ -14,22 +17,12 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  */
 class TimeLiveData(
     private val context: Context
-) : BaseLiveData<Time>() {
+) : Live3<Time>(Time()) {
 
-    init {
-        value = Time()
-    }
+    private var timeJob: Job? = null
 
     override fun onActive() {
         super.onActive()
-
-        fun updateTime() {
-            val now = System.currentTimeMillis().let(::Time)
-            postValue(now)
-        }
-
-        updateTime()
-
         launch {
             val broadcastReceiver = object : BroadcastReceiver() {
                 override fun onReceive(context: Context, intent: Intent) {
@@ -49,5 +42,22 @@ class TimeLiveData(
                 }
             }
         }
+
+        updateTime()
     }
+
+    private fun updateTime() {
+        timeJob?.cancel()
+        timeJob = launch {
+            delay(DEFAULT_DEBOUNCE)
+
+            val time = Time()
+            push(time)
+        }.apply {
+            invokeOnCompletion {
+                timeJob = null
+            }
+        }
+    }
+
 }
