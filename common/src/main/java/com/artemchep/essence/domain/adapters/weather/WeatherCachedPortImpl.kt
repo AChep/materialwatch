@@ -1,10 +1,14 @@
 package com.artemchep.essence.domain.adapters.weather
 
+import android.util.Log
 import arrow.core.Either
+import arrow.core.orNull
+import arrow.core.right
 import com.artemchep.essence.domain.models.Geolocation
 import com.artemchep.essence.domain.models.Time
 import com.artemchep.essence.domain.models.Weather
 import com.artemchep.essence.domain.ports.WeatherPort
+import com.artemchep.essence.ifDebug
 
 /**
  * @author Artem Chepurnoy
@@ -22,8 +26,6 @@ class WeatherCachedPortImpl(private val provider: WeatherPort) : WeatherPort {
     private var lastEntry: Entry<Weather>? = null
 
     override suspend fun getWeather(geolocation: Geolocation): Either<Throwable, Weather> {
-        return provider.getWeather(geolocation)
-        /*
         val now = System.currentTimeMillis().let(::Time)
         return lastEntry
             ?.let {
@@ -34,7 +36,7 @@ class WeatherCachedPortImpl(private val provider: WeatherPort) : WeatherPort {
                     }
                     // The elapsed time is not much, the weather is
                     // the same.
-                    it.value
+                    it.value.right()
                 } else {
                     null
                 }
@@ -44,12 +46,16 @@ class WeatherCachedPortImpl(private val provider: WeatherPort) : WeatherPort {
             ?: try {
                 return provider.getWeather(geolocation)
                     .also {
-                        ifDebug {
-                            Log.d(TAG, "Storing an updated $it")
+                        val weather = it.orNull()
+                        if (weather != null) {
+                            ifDebug {
+                                Log.d(TAG, "Storing an updated $it")
+                            }
+
+                            // Save this object
+                            val now = System.currentTimeMillis().let(::Time)
+                            lastEntry = Entry(weather, now)
                         }
-                        // Save this object
-                        val now = System.currentTimeMillis().let(::Time)
-                        lastEntry = Entry(it, now)
                     }
             } catch (e: Throwable) {
                 lastEntry
@@ -64,9 +70,9 @@ class WeatherCachedPortImpl(private val provider: WeatherPort) : WeatherPort {
                         if (dt < CURRENT_TIMEOUT) {
                             // The elapsed time is not much, the weather can be
                             // the same.
-                            return it.value
+                            return it.value.right()
                         } else if (dt < TODAY_TIMEOUT) {
-                            return it.value.copy(current = null)
+                            return it.value.copy(current = null).right()
                         }
                     }
 
@@ -79,7 +85,6 @@ class WeatherCachedPortImpl(private val provider: WeatherPort) : WeatherPort {
                 // exception.
                 throw e
             }
-            */
     }
 
     internal data class Entry<T>(val value: T, val time: Time)
