@@ -49,15 +49,16 @@ open class LiveFlowImpl<T>(
     }
 
     override fun share(): Flow<T> =
-        flowWithLifecycle(
+        flowWithLifecycle<T, Unit>(
             onActive = { channel ->
                 // Add a channel to the list of
                 // consumers.
                 mutex.withLock {
                     setConsumers(consumers + channel)
                 }
+                Unit
             },
-            onInactive = { channel ->
+            onInactive = { channel, _ ->
                 // Remove a channel from the list of
                 // consumers.
                 mutex.withLock {

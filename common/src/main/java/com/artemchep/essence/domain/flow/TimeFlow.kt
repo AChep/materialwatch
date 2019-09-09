@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import com.artemchep.essence.domain.models.Time
 import com.artemchep.essence.domain.models.currentTime
+import com.artemchep.liveflow.impl.shared
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
@@ -18,3 +19,4 @@ fun Context.flowOfTime(onStartEmitCurrentTime: Boolean = true): Flow<Time> =
         .onStart {
             if (onStartEmitCurrentTime) emit(currentTime)
         }
+        .shared()

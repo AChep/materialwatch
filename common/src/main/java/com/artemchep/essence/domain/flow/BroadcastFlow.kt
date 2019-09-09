@@ -14,11 +14,10 @@ private fun flowOfIntent(
     intentFilterBuilder: IntentFilter.() -> Unit,
     observe: (BroadcastReceiver, IntentFilter) -> Unit,
     removeObserver: (BroadcastReceiver) -> Unit
-): Flow<Intent> {
-    var observer: BroadcastReceiver? = null
-    return flowWithLifecycle(
+): Flow<Intent> =
+    flowWithLifecycle<Intent, BroadcastReceiver>(
         onActive = {
-            observer = object : BroadcastReceiver() {
+            object : BroadcastReceiver() {
                 override fun onReceive(context: Context, intent: Intent) {
                     GlobalScope.launch {
                         it.send(intent)
@@ -29,29 +28,31 @@ private fun flowOfIntent(
                 observe(observer, intentFilter)
             }
         },
-        onInactive = {
-            observer?.let(removeObserver)
-            observer = null
+        onInactive = { _, observer ->
+            removeObserver(observer)
         }
     )
-}
 
 fun Context.flowOfSystemIntent(intentFilterBuilder: IntentFilter.() -> Unit) =
     flowOfIntent(
         intentFilterBuilder = intentFilterBuilder,
         observe = { receiver, intentFilter ->
-            registerReceiver(receiver, intentFilter)
+            applicationContext.registerReceiver(receiver, intentFilter)
         },
-        removeObserver = ::unregisterReceiver
+        removeObserver = {
+            applicationContext.unregisterReceiver(it)
+        }
     )
 
 fun Context.flowOfLocalIntent(intentFilterBuilder: IntentFilter.() -> Unit) = run {
-    val localBroadcastManager = LocalBroadcastManager.getInstance(this)
+    val localBroadcastManager = LocalBroadcastManager.getInstance(applicationContext)
     flowOfIntent(
         intentFilterBuilder = intentFilterBuilder,
         observe = { receiver, intentFilter ->
             localBroadcastManager.registerReceiver(receiver, intentFilter)
         },
-        removeObserver = localBroadcastManager::unregisterReceiver
+        removeObserver = { receiver ->
+            localBroadcastManager.unregisterReceiver(receiver)
+        }
     )
 }

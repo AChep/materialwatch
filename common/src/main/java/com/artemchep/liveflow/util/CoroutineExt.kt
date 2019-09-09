@@ -9,20 +9,21 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 
-internal fun <T> flowWithLifecycle(
-    onActive: suspend (SendChannel<T>) -> Unit,
-    onInactive: suspend (SendChannel<T>) -> Unit
+internal fun <T, O : Any> flowWithLifecycle(
+    onActive: suspend (SendChannel<T>) -> O,
+    onInactive: suspend (SendChannel<T>, O) -> Unit
 ): Flow<T> = flow {
     coroutineScope {
         val channel = Channel<T>(Channel.RENDEZVOUS)
         // Control the lifecycle of this flow
         // collector.
         launch {
+            lateinit var observer: O
             try {
-                onActive(channel)
+                observer = onActive(channel)
                 awaitCancel()
             } finally {
-                onInactive(channel)
+                onInactive(channel, observer)
             }
         }
 
