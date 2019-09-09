@@ -1,6 +1,7 @@
 package com.artemchep.essence
 
 import com.artemchep.config.common.SharedPrefConfig
+import com.artemchep.config.extensions.asFlowOfProperty
 import com.artemchep.essence.ui.PALETTE_WHITE
 
 /**
@@ -41,5 +42,11 @@ object Cfg : SharedPrefConfig("config") {
         key = KEY_WEATHER_UPDATE_PERIOD,
         defaultValue = WEATHER_UPDATE_PERIOD
     )
+
+    fun <T : Any> asFlowOfProperty(key: String) =
+        asFlowOfProperty(
+            delegate = properties
+                .first { it.key == key } as ConfigDelegate<T>
+        )
 
 }

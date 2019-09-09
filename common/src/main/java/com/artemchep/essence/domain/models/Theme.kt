@@ -1,10 +1,12 @@
 package com.artemchep.essence.domain.models
 
 import android.graphics.Color
+import arrow.optics.optics
 
 /**
  * @author Artem Chepurnoy
  */
+@optics
 data class Theme(
     /**
      * The color of background of

@@ -8,11 +8,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import arrow.core.Either
 import com.artemchep.essence.Cfg
-import com.artemchep.essence.domain.live.*
-import com.artemchep.essence.domain.live.base.Live3
+import com.artemchep.essence.domain.flow.*
 import com.artemchep.essence.domain.models.*
+import com.artemchep.essence.domain.ports.GeolocationPort
 import com.artemchep.essence.domain.ports.WeatherPort
 import com.artemchep.essence.domain.viewmodel.base.BaseViewModel
+import com.artemchep.liveflow.impl.shared
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 /**
  * @author Artem Chepurnoy
@@ -21,36 +24,56 @@ class WatchFaceViewModel(
     application: Application,
     config: Cfg,
     weatherPort: WeatherPort,
-    /**
-     * The emitter of the time
-     */
-    val timeLiveData: Live3<Time>,
-    /**
-     * The emitter of the ambient mode state
-     * data.
-     */
-    ambientModeLiveData: Live3<AmbientMode>,
-    /**
-     * The emitter of the complications
-     * data.
-     */
-    complicationsRawLiveData: Live3<SparseArray<out (Context, Time) -> Complication>>
+    geolocationPort: GeolocationPort,
+    val timeFlow: Flow<Time>,
+    val ambientModeFlow: Flow<AmbientMode>,
+    val complicationsRawFlow: Flow<SparseArray<out (Context, Time) -> Complication>>
 ) : BaseViewModel(application) {
 
-    val themeLiveData: Live3<Theme> =
-        ThemeLiveData(config, ambientModeLiveData)
+    val themeFlow: Flow<Theme> = ThemeFlow(
+        themeNameFlow = config.asFlowOfProperty(Cfg.KEY_THEME),
+        accentColorFlow = config.asFlowOfProperty(Cfg.KEY_ACCENT_COLOR),
+        ambientModeFlow = ambientModeFlow
+    ).shared()
 
-    val visibilityLiveData: Live3<Visibility> =
-        VisibilityLiveData(config, ambientModeLiveData)
+    val visibilityFlow: Flow<Visibility> = VisibilityFlow(
+        ambientModeFlow = ambientModeFlow
+    ).shared()
 
-    val geolocationLiveData: Live3<Moment<Either<Throwable, Geolocation>>> =
-        GeolocationLiveData(context, config, timeLiveData)
+    val geolocationFlow: Flow<Moment<Either<Throwable, Geolocation>>> = geolocationPort
+        .asFlow(
+            permissionsChangedFlow = context.flowOfPermissionChangedEvent(),
+            periodFlow = config.asFlowOfProperty(Cfg.KEY_GEOLOCATION_UPDATE_PERIOD),
+            timeFlow = timeFlow
+        )
+        .shared()
 
-    val weatherLiveData: Live3<Either<Throwable, Weather>> =
-        WeatherLiveData(config, weatherPort, ambientModeLiveData, geolocationLiveData)
+    val weatherFlow: Flow<Moment<Either<Throwable, Weather>>> = weatherPort
+        .asFlow(
+            geolocationFlow = geolocationFlow
+                .map { it.unbox() },
+            periodFlow = config.asFlowOfProperty(Cfg.KEY_WEATHER_UPDATE_PERIOD),
+            timeFlow = timeFlow
+        )
+        .shared()
 
-    val complicationsLiveData: Live3<Map<Int, Pair<Drawable?, String?>>> =
-        ComplicationsLiveData(context, timeLiveData, ambientModeLiveData, complicationsRawLiveData)
+    val complicationsFlow: Flow<Map<Int, Pair<Drawable?, String?>>> = ComplicationFlow(
+        context = context,
+        ambientModeFlow = ambientModeFlow,
+        timeFlow = timeFlow,
+        complicationsFactoryFlow = complicationsRawFlow
+    ).shared()
+
+    val watchFaceFlow: Flow<WatchFaceDelta<*>> = WatchFaceFlow(
+        timeFlow = timeFlow,
+        themeFlow = themeFlow,
+        visibilityFlow = visibilityFlow,
+        weatherFlow = weatherFlow
+            .map { it.unbox() },
+        complicationFlow = complicationsFlow
+    )
+//        .debounce(16)
+//        .shared()
 
     /**
      * @author Artem Chepurnoy
@@ -67,20 +90,10 @@ class WatchFaceViewModel(
          * port.
          */
         private val weatherPort: WeatherPort,
-        /**
-         * The emitter of the time
-         */
-        private val timeLiveData: Live3<Time>,
-        /**
-         * The emitter of the ambient mode state
-         * data.
-         */
-        private val ambientModeLiveData: Live3<AmbientMode>,
-        /**
-         * The emitter of the complications
-         * data.
-         */
-        private val complicationsRawLiveData: Live3<SparseArray<out (Context, Time) -> Complication>>
+        private val geolocationPort: GeolocationPort,
+        private val timeFlow: Flow<Time>,
+        private val ambientModeFlow: Flow<AmbientMode>,
+        private val complicationsRawFlow: Flow<SparseArray<out (Context, Time) -> Complication>>
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
             return when {
@@ -89,9 +102,10 @@ class WatchFaceViewModel(
                         application,
                         config,
                         weatherPort,
-                        timeLiveData,
-                        ambientModeLiveData,
-                        complicationsRawLiveData
+                        geolocationPort,
+                        timeFlow,
+                        ambientModeFlow,
+                        complicationsRawFlow
                     )
                     viewModel as T
                 }

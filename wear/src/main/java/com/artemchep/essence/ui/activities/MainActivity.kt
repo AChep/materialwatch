@@ -117,12 +117,20 @@ class MainActivity : ActivityBase(), OnItemClickListener<ConfigItem> {
         viewModel.ensureRuntimePermissions()
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
         val localBroadcastManager = LocalBroadcastManager.getInstance(this@MainActivity)
         val intent = Intent(ACTION_PERMISSIONS_CHANGED)
         localBroadcastManager.sendBroadcast(intent)
+    }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
         val key = data?.getStringExtra(PickerActivity.RESULT_KEY)
         viewModel.result(requestCode, key)
     }

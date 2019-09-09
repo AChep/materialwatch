@@ -17,9 +17,8 @@ import androidx.lifecycle.LifecycleRegistry
 import com.artemchep.essence.Cfg
 import com.artemchep.essence.R
 import com.artemchep.essence.WATCH_COMPLICATIONS
+import com.artemchep.essence.domain.adapters.geolocation.GmsGeolocationPort
 import com.artemchep.essence.domain.adapters.weather.WeatherPort
-import com.artemchep.essence.domain.live.base.Live3
-import com.artemchep.essence.domain.live.base.injectObserver
 import com.artemchep.essence.domain.models.AmbientMode
 import com.artemchep.essence.domain.models.Complication
 import com.artemchep.essence.domain.models.Time
@@ -27,8 +26,11 @@ import com.artemchep.essence.domain.models.asAmbientMode
 import com.artemchep.essence.domain.viewmodel.WatchFaceViewModel
 import com.artemchep.essence.extensions.getLongMessage
 import com.artemchep.essence.extensions.getShortMessage
+import com.artemchep.essence.extensions.injectObserver
 import com.artemchep.essence.extensions.isActive
+import com.artemchep.essence.flow.ManualTimeFlow
 import com.artemchep.essence.ui.views.WatchFaceView
+import com.artemchep.liveflow.impl.MutableLiveFlowImpl
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -62,12 +64,17 @@ open class WatchFaceService : CanvasWatchFaceService() {
 
         // ---- Ports ----
 
-        private val timeLiveData = Live3(Time())
+        private val timeFlow = ManualTimeFlow()
 
-        private val ambientModeLiveData = Live3<AmbientMode>(AmbientMode.Off)
+        private val ambientModeFlow = MutableLiveFlowImpl<AmbientMode>()
+            .apply {
+                emit(AmbientMode.Off)
+            }
 
-        private val complicationsRawLiveData =
-            Live3<SparseArray<out (Context, Time) -> Complication>>(SparseArray())
+        private val complicationsRawFlow =
+            MutableLiveFlowImpl<SparseArray<out (Context, Time) -> Complication>>()
+
+        private val geolocationPort by lazy { GmsGeolocationPort(this@WatchFaceService) }
 
         private val weatherPort = WeatherPort()
 
@@ -102,41 +109,30 @@ open class WatchFaceService : CanvasWatchFaceService() {
                 application,
                 Cfg,
                 weatherPort,
-                timeLiveData,
-                ambientModeLiveData,
-                complicationsRawLiveData
+                geolocationPort,
+                timeFlow.share(),
+                ambientModeFlow.share(),
+                complicationsRawFlow.share()
             )
             viewModel.setup()
         }
 
         private fun WatchFaceViewModel.setup() {
-            val lifecycle = this@WatchFaceEngine
-            themeLiveData.injectObserver(lifecycle, createViewObserver(view::setTheme))
-            weatherLiveData.injectObserver(lifecycle, createViewObserver(view::setWeather))
-            timeLiveData.injectObserver(lifecycle, createViewObserver(view::setTime))
-            visibilityLiveData.injectObserver(lifecycle, createViewObserver(view::setVisibility))
-            complicationsLiveData.injectObserver(
-                lifecycle,
-                createViewObserver(view::setComplications)
-            )
-        }
-
-        private inline fun <T> createViewObserver(crossinline block: (T) -> Unit) =
-            { model: T ->
-                block(model)
+            watchFaceFlow.injectObserver(this@WatchFaceEngine) {
+                view.setDelta(it)
                 postInvalidate()
             }
+        }
 
         override fun onTimeTick() {
             super.onTimeTick()
-            val time = Time()
-            timeLiveData.pushWithDebounce(this, { time })
+            timeFlow.emitCurrentTime()
         }
 
         override fun onAmbientModeChanged(inAmbientMode: Boolean) {
             super.onAmbientModeChanged(inAmbientMode)
             val ambientMode = inAmbientMode.asAmbientMode()
-            ambientModeLiveData.pushWithDebounce(this, { ambientMode })
+            ambientModeFlow.emit(ambientMode)
         }
 
         override fun onComplicationDataUpdate(
@@ -184,7 +180,7 @@ open class WatchFaceService : CanvasWatchFaceService() {
                     .withLock {
                         complicationDataSparse.clone()
                     }
-                complicationsRawLiveData.pushWithDebounce(this@WatchFaceEngine, { sparse })
+                complicationsRawFlow.emit(sparse)
             }.apply {
                 invokeOnCompletion {
                     sendComplicationsJob = null

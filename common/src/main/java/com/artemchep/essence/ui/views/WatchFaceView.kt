@@ -20,10 +20,8 @@ import com.artemchep.essence.*
 import com.artemchep.essence.domain.exceptions.ApiLimitReachedException
 import com.artemchep.essence.domain.exceptions.GeolocationAccessException
 import com.artemchep.essence.domain.exceptions.GeolocationEmptyException
-import com.artemchep.essence.domain.models.Theme
-import com.artemchep.essence.domain.models.Time
-import com.artemchep.essence.domain.models.Visibility
-import com.artemchep.essence.domain.models.Weather
+import com.artemchep.essence.domain.exceptions.NoDataException
+import com.artemchep.essence.domain.models.*
 import com.artemchep.essence.ui.format.format
 import com.artemchep.essence.ui.format.formatRich
 import com.artemchep.essence.ui.views.arc.ArcLayout
@@ -52,6 +50,16 @@ class WatchFaceView @JvmOverloads constructor(
     private var weatherPrev: Either<Throwable, Weather>? = null
 
     override fun hasOverlappingRendering(): Boolean = false
+
+    fun setDelta(delta: WatchFaceDelta<*>) {
+        when (delta) {
+            is WatchFaceTheme -> setTheme(delta.value)
+            is WatchFaceTime -> setTime(delta.value)
+            is WatchFaceVisibility -> setVisibility(delta.value)
+            is WatchFaceWeather -> setWeather(delta.value)
+            is WatchFaceComplication -> setComplications(delta.value)
+        }
+    }
 
     /**
      * Enables or disables the anti-aliasing of all of the
@@ -178,10 +186,11 @@ class WatchFaceView @JvmOverloads constructor(
                     is ApiLimitReachedException -> R.string.error_api_limit_reached
                     is GeolocationAccessException -> R.string.error_geolocation_access
                     is GeolocationEmptyException -> R.string.error_geolocation_empty
+                    is NoDataException -> null
                     else -> R.string.error_no_internet
-                }.let {
-                    context.getString(it)
                 }
+                    ?.let(context::getString)
+                    .orEmpty()
                 tempCurIconView.isVisible = false
                 setNoTodayWeather()
             }

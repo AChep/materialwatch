@@ -13,3 +13,6 @@ class Time(val millis: Long) {
     operator fun minus(time: Long): Time =
         Time(millis - time)
 }
+
+val currentTime: Time
+    get() = Time()

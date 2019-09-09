@@ -15,16 +15,18 @@ import com.artemchep.config.Config
 import com.artemchep.essence.ACTION_PERMISSIONS_CHANGED
 import com.artemchep.essence.Cfg
 import com.artemchep.essence.R
+import com.artemchep.essence.domain.adapters.geolocation.GmsGeolocationPort
 import com.artemchep.essence.domain.adapters.weather.WeatherPort
-import com.artemchep.essence.domain.live.base.injectObserver
+import com.artemchep.essence.domain.flow.flowOfTime
 import com.artemchep.essence.domain.models.OkScreen
 import com.artemchep.essence.domain.models.SETTINGS_ITEM_ACCENT
 import com.artemchep.essence.domain.models.SETTINGS_ITEM_THEME
+import com.artemchep.essence.domain.models.WatchFaceTheme
 import com.artemchep.essence.domain.viewmodel.SettingsViewModel
 import com.artemchep.essence.domain.viewmodel.WatchFaceViewModel
-import com.artemchep.essence.live.AmbientModeLiveData
-import com.artemchep.essence.live.ComplicationsRawLiveData
-import com.artemchep.essence.live.TimeLiveData
+import com.artemchep.essence.extensions.injectObserver
+import com.artemchep.essence.flow.PreviewAmbientModeFlow
+import com.artemchep.essence.flow.PreviewComplicationRawFlow
 import com.artemchep.essence.ui.adapters.MainAdapter
 import com.artemchep.essence.ui.dialogs.AboutDialog
 import com.artemchep.essence.ui.dialogs.PickerDialog
@@ -36,6 +38,7 @@ import com.google.android.gms.wearable.DataClient
 import com.google.android.gms.wearable.Wearable
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.layout_toolbar.*
+import kotlinx.coroutines.flow.filter
 
 /**
  * @author Artem Chepurnoy
@@ -48,13 +51,15 @@ class MainActivity : ActivityBase(),
 
     // ---- Ports ----
 
-    private val timeLiveData = TimeLiveData(this)
+    private val timeFlow by lazy { flowOfTime() }
 
-    private val ambientModeLiveData = AmbientModeLiveData()
+    private val ambientModeFlow = PreviewAmbientModeFlow()
 
-    private val complicationsRawLiveData = ComplicationsRawLiveData()
+    private val complicationRawFlow = PreviewComplicationRawFlow()
 
     private val weatherPort = WeatherPort()
+
+    private val geolocationPort by lazy { GmsGeolocationPort(this) }
 
     // ---- Setup ----
 
@@ -101,9 +106,10 @@ class MainActivity : ActivityBase(),
         val watchFaceViewModelFactory = WatchFaceViewModel.Factory(
             application, Cfg,
             weatherPort,
-            timeLiveData,
-            ambientModeLiveData,
-            complicationsRawLiveData
+            geolocationPort,
+            timeFlow,
+            ambientModeFlow,
+            complicationRawFlow
         )
         watchFaceViewModel = ViewModelProviders
             .of(this, watchFaceViewModelFactory)
@@ -112,22 +118,49 @@ class MainActivity : ActivityBase(),
     }
 
     private fun WatchFaceViewModel.setup() {
-        timeLiveData.injectObserver(this@MainActivity) { watchFaceView.setTime(it) }
-        weatherLiveData.injectObserver(this@MainActivity) { watchFaceView.setWeather(it) }
-        visibilityLiveData.injectObserver(this@MainActivity) { watchFaceView.setVisibility(it) }
-        complicationsLiveData.injectObserver(this@MainActivity) { watchFaceView.setComplications(it) }
-        themeLiveData.injectObserver(this@MainActivity) { theme ->
-            // Get the background color from a theme and set it
-            // separately from a theme.
-            val backgroundColor = theme.backgroundColor
-            watchFaceView.apply {
-                // Set theme
-                setTheme(theme.copy(backgroundColor = Color.TRANSPARENT))
-                // Set a background
-                val bg = background as? CircleDrawable ?: CircleDrawable().also(::setBackground)
-                bg.color = backgroundColor
+//        timeFlow.injectObserver(this@MainActivity) { watchFaceView.setTime(it) }
+//        weatherFlow.injectObserver(this@MainActivity) { watchFaceView.setWeather(it.unbox()) }
+//        visibilityFlow.injectObserver(this@MainActivity) { watchFaceView.setVisibility(it) }
+//        complicationsFlow.injectObserver(this@MainActivity) { watchFaceView.setComplications(it) }
+//        themeFlow.injectObserver(this@MainActivity) { theme ->
+//            // Get the background color from a theme and set it
+//            // separately from a theme.
+//            val backgroundColor = theme.backgroundColor
+//            watchFaceView.apply {
+//                // Set theme
+//                setTheme(theme.copy(backgroundColor = Color.TRANSPARENT))
+//                // Set a background
+//                val bg = background as? CircleDrawable ?: CircleDrawable().also(::setBackground)
+//                bg.color = backgroundColor
+//            }
+//        }
+        watchFaceFlow
+            .filter {
+                when (it) {
+                    is WatchFaceTheme -> {
+                        // Get the background color from a theme and set it
+                        // separately from a theme.
+                        val backgroundColor = it.value.backgroundColor
+                        watchFaceView.apply {
+                            // Set theme
+                            setTheme(it.value.copy(backgroundColor = Color.TRANSPARENT))
+                            // Set a background
+                            val bg = background as? CircleDrawable
+                                ?: CircleDrawable().also(::setBackground)
+                            bg.color = backgroundColor
+                        }
+
+                        // do not pass it to the watch face
+                        // view!
+                        false
+                    }
+                    else ->
+                        true
+                }
             }
-        }
+            .injectObserver(this@MainActivity) {
+                watchFaceView.setDelta(it)
+            }
     }
 
     private fun setupSettingsViewModel() {
@@ -193,8 +226,13 @@ class MainActivity : ActivityBase(),
         super.onPause()
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
         val localBroadcastManager = LocalBroadcastManager.getInstance(this@MainActivity)
         val intent = Intent(ACTION_PERMISSIONS_CHANGED)
         localBroadcastManager.sendBroadcast(intent)
