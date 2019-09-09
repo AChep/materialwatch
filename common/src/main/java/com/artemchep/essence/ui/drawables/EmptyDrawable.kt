@@ -13,7 +13,7 @@ import android.graphics.drawable.Drawable
  */
 class EmptyDrawable : Drawable() {
 
-    override fun draw(p0: Canvas?) {
+    override fun draw(p0: Canvas) {
     }
 
     override fun setColorFilter(p0: ColorFilter?) {
