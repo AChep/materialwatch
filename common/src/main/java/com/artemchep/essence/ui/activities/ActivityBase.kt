@@ -15,9 +15,9 @@ import kotlin.coroutines.CoroutineContext
  */
 abstract class ActivityBase : AppCompatActivity(), CoroutineScope {
 
-    lateinit var job: Job
+    private lateinit var job: Job
 
-    lateinit var messageJob: Job
+    private lateinit var messageJob: Job
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
