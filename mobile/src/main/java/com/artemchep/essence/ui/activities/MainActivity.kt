@@ -33,11 +33,11 @@ import com.artemchep.essence.ui.dialogs.PickerDialog
 import com.artemchep.essence.ui.drawables.CircleDrawable
 import com.artemchep.essence.ui.interfaces.OnItemClickListener
 import com.artemchep.essence.ui.model.ConfigItem
+import com.artemchep.essence.ui.views.WatchFaceView
 import com.google.android.gms.wearable.DataClient
 import com.google.android.gms.wearable.Wearable
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.layout_toolbar.*
-import kotlinx.android.synthetic.main.watch_face.*
 import kotlinx.coroutines.flow.filter
 
 /**
@@ -63,6 +63,8 @@ class MainActivity : ActivityBase(),
 
     // ---- Setup ----
 
+    private lateinit var watchFaceView: WatchFaceView
+
     private lateinit var dataClient: DataClient
 
     private lateinit var adapter: MainAdapter
@@ -76,6 +78,8 @@ class MainActivity : ActivityBase(),
         setContentView(R.layout.activity_main)
 
         dataClient = Wearable.getDataClient(this)
+
+        watchFaceView = findViewById(R.id.watchFaceView) // do not remove :)
 
         setupView()
         setupRuntimePermissions()
