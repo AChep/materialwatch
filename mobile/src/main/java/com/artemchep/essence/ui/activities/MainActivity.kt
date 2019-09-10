@@ -33,11 +33,11 @@ import com.artemchep.essence.ui.dialogs.PickerDialog
 import com.artemchep.essence.ui.drawables.CircleDrawable
 import com.artemchep.essence.ui.interfaces.OnItemClickListener
 import com.artemchep.essence.ui.model.ConfigItem
-import com.artemchep.essence.ui.views.WatchFaceView
 import com.google.android.gms.wearable.DataClient
 import com.google.android.gms.wearable.Wearable
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.layout_toolbar.*
+import kotlinx.android.synthetic.main.watch_face.*
 import kotlinx.coroutines.flow.filter
 
 /**
@@ -67,8 +67,6 @@ class MainActivity : ActivityBase(),
 
     private lateinit var adapter: MainAdapter
 
-    private lateinit var watchFaceView: WatchFaceView
-
     private lateinit var watchFaceViewModel: WatchFaceViewModel
 
     private lateinit var settingsViewModel: SettingsViewModel
@@ -96,8 +94,6 @@ class MainActivity : ActivityBase(),
             adapter = this@MainActivity.adapter
         }
 
-        watchFaceView = findViewById(R.id.watchFaceView)
-
         setupWatchFaceViewModel()
         setupSettingsViewModel()
     }
@@ -118,22 +114,6 @@ class MainActivity : ActivityBase(),
     }
 
     private fun WatchFaceViewModel.setup() {
-//        timeFlow.injectObserver(this@MainActivity) { watchFaceView.setTime(it) }
-//        weatherFlow.injectObserver(this@MainActivity) { watchFaceView.setWeather(it.unbox()) }
-//        visibilityFlow.injectObserver(this@MainActivity) { watchFaceView.setVisibility(it) }
-//        complicationsFlow.injectObserver(this@MainActivity) { watchFaceView.setComplications(it) }
-//        themeFlow.injectObserver(this@MainActivity) { theme ->
-//            // Get the background color from a theme and set it
-//            // separately from a theme.
-//            val backgroundColor = theme.backgroundColor
-//            watchFaceView.apply {
-//                // Set theme
-//                setTheme(theme.copy(backgroundColor = Color.TRANSPARENT))
-//                // Set a background
-//                val bg = background as? CircleDrawable ?: CircleDrawable().also(::setBackground)
-//                bg.color = backgroundColor
-//            }
-//        }
         watchFaceFlow
             .filter {
                 when (it) {

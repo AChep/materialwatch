@@ -25,7 +25,33 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="272dp"
             android:layout_height="match_parent"
-            app:cardCornerRadius="0dp" />
+            app:cardCornerRadius="0dp">
+
+            <FrameLayout
+                android:layout_width="@dimen/watch_size"
+                android:layout_height="@dimen/watch_size"
+                android:layout_gravity="center">
+
+                <View
+                    android:layout_width="@dimen/watch_band_width"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:background="@drawable/bg_watch_band"
+                    android:elevation="8dp" />
+
+                <FrameLayout
+                    android:id="@+id/watchFaceViewContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="8dp"
+                    android:background="@drawable/bg_watch_face"
+                    android:elevation="12dp"
+                    android:padding="4dp">
+
+                    <include layout="@layout/watch_face" />
+                </FrameLayout>
+            </FrameLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
@@ -38,30 +64,5 @@
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
     </LinearLayout>
-
-    <FrameLayout
-        android:layout_width="@dimen/watch_size"
-        android:layout_height="@dimen/watch_size"
-        android:layout_gravity="start|center_vertical"
-        android:layout_marginTop="?actionBarSize"
-        android:layout_marginEnd="16dp">
-
-        <View
-            android:layout_width="@dimen/watch_band_width"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:background="@drawable/bg_watch_band"
-            android:elevation="8dp" />
-
-        <FrameLayout
-            android:id="@+id/watchFaceViewContainer"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="8dp"
-            android:background="@drawable/bg_watch_face"
-            android:elevation="12dp"
-            android:padding="4dp" />
-
-    </FrameLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
