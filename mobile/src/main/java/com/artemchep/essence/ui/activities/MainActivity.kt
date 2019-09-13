@@ -6,7 +6,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import androidx.core.app.ActivityCompat
-import androidx.core.graphics.luminance
+import androidx.core.graphics.ColorUtils
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -229,7 +229,7 @@ class MainActivity : ActivityBase(),
     }
 
     private fun updateAppAccentColor(accentColor: Int = Cfg.accentColor) {
-        val isContentColorDark = accentColor.luminance < 0.5
+        val isContentColorDark = ColorUtils.calculateLuminance(accentColor) < 0.5
         val contentColor = if (isContentColorDark) {
             Color.WHITE
         } else Color.BLACK

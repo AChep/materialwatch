@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.graphics.luminance
+import androidx.core.graphics.ColorUtils
 import com.artemchep.essence.R
 import com.artemchep.essence.ui.adapters.AdapterBase
 import com.artemchep.essence.ui.interfaces.OnItemClickListener
@@ -34,7 +34,7 @@ open class PickerAdapter(
 
         override fun bindViewHolder(holder: Holder, position: Int) {
             val model = getItem(position)
-            val colorIsDark = model.color.luminance < 0.5f
+            val colorIsDark = ColorUtils.calculateLuminance(model.color) < 0.5f
             val colorContent = if (colorIsDark) Color.WHITE else Color.BLACK
 
             holder.apply {
