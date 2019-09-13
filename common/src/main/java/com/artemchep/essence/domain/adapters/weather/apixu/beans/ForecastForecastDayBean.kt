@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-class ForecastForecastDayBean(
+data class ForecastForecastDayBean(
     @SerialName("day")
     val main: ForecastForecastDayMainBean
 )

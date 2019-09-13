@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-class TemperatureMinMaxBean(
+data class TemperatureMinMaxBean(
     @SerialName("Minimum")
     val min: UnitBean,
     @SerialName("Maximum")

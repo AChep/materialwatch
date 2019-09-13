@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-class WindBean(
+data class WindBean(
     @SerialName("Speed")
     val speed: WindSpeedBean
 )

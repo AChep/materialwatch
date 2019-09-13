@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-class ForecastDailyDayBean(
+data class ForecastDailyDayBean(
     @SerialName("temperatureMin")
     val tempMin: Float,
     @SerialName("temperatureMax")

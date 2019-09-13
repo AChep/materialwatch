@@ -12,6 +12,7 @@ fun WeatherPort() =
         WeatherApixuPortImpl(),
         WeatherAccuWeatherPortImpl()
     )
+        .map(::WeatherSafePortImpl)
         .run {
             // Shuffle the providers in release mode, so
             // it distributes evenly.

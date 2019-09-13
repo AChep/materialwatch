@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-class ForecastBean(
+data class ForecastBean(
     @SerialName("currently")
     val currently: ForecastCurrentlyBean,
     @SerialName("daily")

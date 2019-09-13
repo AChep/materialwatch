@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-class ForecastCurrentlyNowBean(
+data class ForecastCurrentlyNowBean(
     @SerialName("Wind")
     val wind: WindBean,
     @SerialName("Temperature")

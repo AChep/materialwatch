@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-class GeopositionBean(
+data class GeopositionBean(
     @SerialName("Key")
     val key: String
 )

@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-class WindSpeedBean(
+data class WindSpeedBean(
     @SerialName("Metric")
     val metric: UnitBean
 )
