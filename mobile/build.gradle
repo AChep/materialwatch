@@ -6,6 +6,8 @@ apply plugin: 'kotlin-android-extensions'
 
 apply plugin: 'kotlin-kapt'
 
+apply plugin: 'io.fabric'
+
 android {
     compileSdkVersion sdk_target
 
@@ -97,7 +99,12 @@ dependencies {
     implementation "com.google.android.gms:play-services-wearable:17.0.0"
     compileOnly "com.google.android.wearable:wearable:$wearable_version"
 
+    implementation "com.google.firebase:firebase-analytics:$firebase_analytics_version"
+    implementation "com.crashlytics.sdk.android:crashlytics:$firebase_crashlytics_version"
+
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 }
+
+apply plugin: 'com.google.gms.google-services'
