@@ -27,6 +27,7 @@ import com.artemchep.essence.domain.viewmodel.WatchFaceViewModel
 import com.artemchep.essence.extensions.injectObserver
 import com.artemchep.essence.flow.PreviewAmbientModeFlow
 import com.artemchep.essence.flow.PreviewComplicationRawFlow
+import com.artemchep.essence.sync.DataClientCfgAdapter
 import com.artemchep.essence.ui.adapters.MainAdapter
 import com.artemchep.essence.ui.dialogs.AboutDialog
 import com.artemchep.essence.ui.dialogs.PickerDialog
@@ -72,6 +73,8 @@ class MainActivity : ActivityBase(),
     private lateinit var watchFaceViewModel: WatchFaceViewModel
 
     private lateinit var settingsViewModel: SettingsViewModel
+
+    private val dataClientCfgAdapter by lazy { DataClientCfgAdapter(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -199,6 +202,11 @@ class MainActivity : ActivityBase(),
         settingsViewModel.ensureRuntimePermissions()
     }
 
+    override fun onStart() {
+        super.onStart()
+        dataClient.addListener(dataClientCfgAdapter)
+    }
+
     override fun onResume() {
         super.onResume()
         Cfg.observe(this)
@@ -208,6 +216,11 @@ class MainActivity : ActivityBase(),
     override fun onPause() {
         Cfg.removeObserver(this)
         super.onPause()
+    }
+
+    override fun onStop() {
+        dataClient.removeListener(dataClientCfgAdapter)
+        super.onStop()
     }
 
     override fun onRequestPermissionsResult(
