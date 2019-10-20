@@ -33,6 +33,14 @@ android {
         it.buildConfigField "String", "MY_TIME", "\"" + time + "\""
         it.buildConfigField "String", "MY_TIME_YEAR", "\"" + timeYear + "\""
     }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 }
 
 androidExtensions {
@@ -68,7 +76,7 @@ dependencies {
     implementation "com.github.kittinunf.fuel:fuel-kotlinx-serialization:$fuel_version"
 
     implementation 'com.google.android.gms:play-services-location:17.0.0'
-    implementation "com.google.android.material:material:1.0.0"
+    implementation "com.google.android.material:material:$material_version"
 
     implementation "com.google.android.support:wearable:$wearable_version"
     implementation "com.google.android.gms:play-services-wearable:17.0.0"
