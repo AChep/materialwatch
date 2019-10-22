@@ -1,7 +1,7 @@
-package com.artemchep.essence.domain.adapters.weather.openweathermap
+package com.artemchep.essence.domain.adapters.weather.weatherstack
 
 import arrow.core.Either
-import com.artemchep.essence.domain.adapters.weather.openweathermap.beans.ForecastBean
+import com.artemchep.essence.domain.adapters.weather.weatherstack.beans.ForecastBean
 import com.artemchep.essence.domain.models.*
 import com.artemchep.essence.domain.ports.WeatherPort
 import com.github.kittinunf.fuel.core.Request
@@ -12,14 +12,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.ImplicitReflectionSerializer
 import kotlinx.serialization.json.Json
 
-private const val API_KEY = "c02a6fb2eb00c58fab1bb650ed7d0340"
+private const val API_KEY = "10ba68b25b104773f8c3955476b349b8"
 
-private const val ENDPOINT = "https://api.openweathermap.org"
+private const val ENDPOINT = "http://api.weatherstack.com"
 
 /**
  * @author Artem Chepurnoy
  */
-class WeatherOpenWeatherMapPortImpl : WeatherPort {
+class WeatherWeatherStackPortImpl : WeatherPort {
 
     @ImplicitReflectionSerializer
     override suspend fun getWeather(geolocation: Geolocation): Either<Throwable, Weather> {
@@ -34,8 +34,8 @@ class WeatherOpenWeatherMapPortImpl : WeatherPort {
         return Either.right(
             Weather(
                 current = WeatherCurrent(
-                    wind = Wind(mps = forecast.wind.speed),
-                    temp = Temperature(c = forecast.main.temp)
+                    wind = Wind(mps = forecast.current.wind),
+                    temp = Temperature(c = forecast.current.temp)
                 ),
                 today = null
             )
@@ -43,13 +43,12 @@ class WeatherOpenWeatherMapPortImpl : WeatherPort {
     }
 
     private fun createRequest(geolocation: Geolocation) =
-        "$ENDPOINT/data/2.5/weather"
+        "$ENDPOINT/current"
             .httpGet(
                 listOf(
-                    "appid" to API_KEY,
-                    "lat" to geolocation.latitude,
-                    "lon" to geolocation.longitude,
-                    "units" to "metric"
+                    "access_key" to API_KEY,
+                    "query" to "${geolocation.latitude},${geolocation.longitude}",
+                    "units" to "m"
                 )
             )
 

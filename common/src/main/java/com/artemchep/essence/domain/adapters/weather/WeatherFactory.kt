@@ -1,11 +1,16 @@
 package com.artemchep.essence.domain.adapters.weather
 
 import com.artemchep.essence.domain.adapters.weather.darksky.WeatherDarkSkyPortImpl
+import com.artemchep.essence.domain.adapters.weather.openweathermap.WeatherOpenWeatherMapPortImpl
+import com.artemchep.essence.domain.adapters.weather.weatherstack.WeatherWeatherStackPortImpl
 import com.artemchep.essence_common.BuildConfig
 
-fun WeatherPort() =
+fun WeatherPort() = run {
+    val darkSkuPort = WeatherDarkSkyPortImpl()
     listOf(
-        WeatherDarkSkyPortImpl()
+        WeatherDarkSkyPortImpl(),
+        WeatherAmalgamaPortImpl(WeatherWeatherStackPortImpl(), darkSkuPort),
+        WeatherAmalgamaPortImpl(WeatherOpenWeatherMapPortImpl(), darkSkuPort)
     )
         .map(::WeatherSafePortImpl)
         .run {
@@ -15,3 +20,4 @@ fun WeatherPort() =
         }
         .let(::WeatherBalancedPortImpl)
         .let(::WeatherCachedPortImpl)
+}
