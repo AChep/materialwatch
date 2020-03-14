@@ -6,6 +6,7 @@ import com.artemchep.essence.domain.adapters.weather.accuweather.beans.ForecastD
 import com.artemchep.essence.domain.adapters.weather.accuweather.beans.GeopositionBean
 import com.artemchep.essence.domain.models.*
 import com.artemchep.essence.domain.ports.WeatherPort
+import com.artemchep.essence_common.BuildConfig
 import com.github.kittinunf.fuel.core.Request
 import com.github.kittinunf.fuel.coroutines.awaitObjectResponse
 import com.github.kittinunf.fuel.httpGet
@@ -14,7 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.ImplicitReflectionSerializer
 import kotlinx.serialization.json.Json
 
-private const val API_KEY = "2dAJbAyqss3KwcneCxzwGMvn4iETLzTj"
+private const val API_KEY = BuildConfig.API_ACCU_WEATHER
 
 private const val ENDPOINT = "http://dataservice.accuweather.com"
 

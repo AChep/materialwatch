@@ -4,6 +4,7 @@ import arrow.core.Either
 import com.artemchep.essence.domain.adapters.weather.openweathermap.beans.ForecastBean
 import com.artemchep.essence.domain.models.*
 import com.artemchep.essence.domain.ports.WeatherPort
+import com.artemchep.essence_common.BuildConfig
 import com.github.kittinunf.fuel.core.Request
 import com.github.kittinunf.fuel.coroutines.awaitObjectResponse
 import com.github.kittinunf.fuel.httpGet
@@ -12,7 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.ImplicitReflectionSerializer
 import kotlinx.serialization.json.Json
 
-private const val API_KEY = "c02a6fb2eb00c58fab1bb650ed7d0340"
+private const val API_KEY = BuildConfig.API_OPEN_WEATHER_MAP
 
 private const val ENDPOINT = "https://api.openweathermap.org"
 

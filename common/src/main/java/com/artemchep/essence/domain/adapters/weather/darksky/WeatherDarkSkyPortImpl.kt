@@ -4,6 +4,7 @@ import arrow.core.Either
 import com.artemchep.essence.domain.adapters.weather.darksky.beans.ForecastBean
 import com.artemchep.essence.domain.models.*
 import com.artemchep.essence.domain.ports.WeatherPort
+import com.artemchep.essence_common.BuildConfig
 import com.github.kittinunf.fuel.core.Request
 import com.github.kittinunf.fuel.coroutines.awaitObjectResponse
 import com.github.kittinunf.fuel.httpGet
@@ -12,7 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.ImplicitReflectionSerializer
 import kotlinx.serialization.json.Json
 
-private const val API_KEY = "dc18a605edf923e4e92c17f18a33e3d5"
+private const val API_KEY = BuildConfig.API_DARK_SKY
 
 /**
  * @author Artem Chepurnoy

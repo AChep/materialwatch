@@ -32,6 +32,12 @@ android {
     buildTypes.each {
         it.buildConfigField "String", "MY_TIME", "\"" + time + "\""
         it.buildConfigField "String", "MY_TIME_YEAR", "\"" + timeYear + "\""
+
+        // api keys
+        it.buildConfigField "String", "API_OPEN_WEATHER_MAP", "\"${System.env.API_OPEN_WEATHER_MAP}\""
+        it.buildConfigField "String", "API_ACCU_WEATHER", "\"${System.env.API_ACCU_WEATHER}\""
+        it.buildConfigField "String", "API_DARK_SKY", "\"${System.env.API_DARK_SKY}\""
+        it.buildConfigField "String", "API_WEATHER_STACK", "\"${System.env.API_WEATHER_STACK}\""
     }
 
     compileOptions {
