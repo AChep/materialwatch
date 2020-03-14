@@ -59,7 +59,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlin_coroutines_version"
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.13.0"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.14.0"
 
     implementation "io.arrow-kt:arrow-core-data:$arrow_version"
     implementation "io.arrow-kt:arrow-core-extensions:$arrow_version"
