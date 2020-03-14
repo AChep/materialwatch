@@ -19,6 +19,8 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
+      - id: vars
+        run: echo ::set-output name=tag::${GITHUB_REF:10}
       - name: Copy secrets
         run: |
           cd mobile
@@ -51,12 +53,12 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: mobile/build/outputs/apk/release/mobile-release.apk
-          asset_name: essence-mobile-${{ github.ref }}.apk
+          asset_name: essence-mobile-${{ steps.vars.outputs.tag }}.apk
           asset_content_type: application/zip
       - name: Upload release "wear.apk"
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: wear/build/outputs/apk/release/wear-release.apk
-          asset_name: essence-wear-${{ github.ref }}.apk
+          asset_name: essence-wear-${{ steps.vars.outputs.tag }}.apk
           asset_content_type: application/zip
