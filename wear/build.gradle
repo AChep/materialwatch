@@ -19,25 +19,18 @@ android {
     signingConfigs {
         release {
             def releaseProps = new Properties()
-            if (file("essence-release.properties").exists()) {
-                file("essence-release.properties").withInputStream {
-                    releaseProps.load(it)
+            def keystorePropertiesFile = file('essence-release.properties')
+            if (keystorePropertiesFile.exists()) {
+                keystorePropertiesFile.withReader('UTF-8') { reader ->
+                    releaseProps.load(reader)
                 }
             }
 
-            storeFile = file("essence-release.keystore")
+            storeFile file("essence-release.keystore")
             keyAlias releaseProps['key_alias']
             keyPassword releaseProps['password_key']
             storePassword releaseProps['password_store']
         }
-    }
-
-    def isRunningOnTravis = System.getenv("CI") == "true"
-
-    if (isRunningOnTravis) {
-        signingConfigs.release.storePassword = System.getenv("password_store")
-        signingConfigs.release.keyPassword = System.getenv("password_key")
-        signingConfigs.release.keyAlias = System.getenv("key_alias")
     }
 
     buildTypes {
