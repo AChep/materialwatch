@@ -26,7 +26,7 @@ import com.artemchep.essence.ui.format.format
 import com.artemchep.essence.ui.format.formatRich
 import com.artemchep.essence.ui.views.arc.ArcLayout
 import com.artemchep.essence_common.R
-import kotlinx.android.synthetic.main.watch_face.view.*
+import com.artemchep.essence_common.databinding.WatchFaceBinding
 import java.util.*
 import kotlin.math.max
 import kotlin.math.min
@@ -46,6 +46,10 @@ class WatchFaceView @JvmOverloads constructor(
     }
 
     private val iconSize by lazy { context.resources.getDimensionPixelSize(R.dimen.watch_face_icon_size) }
+
+    private val binding by lazy {
+        WatchFaceBinding.bind(this)
+    }
 
     private var weatherPrev: Either<Throwable, Weather>? = null
 
@@ -67,13 +71,13 @@ class WatchFaceView @JvmOverloads constructor(
      */
     fun setAntiAlias(isEnabled: Boolean) {
         listOf(
-            hour, minute,
-            complication1TextView,
-            complication2TextView,
-            complication3TextView,
-            complication4TextView,
-            complication5TextView,
-            complication6TextView
+            binding.hour, binding.minute,
+            binding.complication1TextView,
+            binding.complication2TextView,
+            binding.complication3TextView,
+            binding.complication4TextView,
+            binding.complication5TextView,
+            binding.complication6TextView
         ).forEach {
             it.paint.isAntiAlias = isEnabled
         }
@@ -82,12 +86,12 @@ class WatchFaceView @JvmOverloads constructor(
     fun setTheme(theme: Theme) {
         setBackgroundColor(theme.backgroundColor)
 
-        minute.apply {
+        binding.minute.apply {
             paint.isAntiAlias = theme.isAntialias
             setTextColor(theme.clockMinuteColor)
         }
 
-        hour.apply {
+        binding.hour.apply {
             paint.isAntiAlias = theme.isAntialias
             setStrokeColor(theme.clockHourColor)
 
@@ -103,14 +107,14 @@ class WatchFaceView @JvmOverloads constructor(
         // Set complications color
         val tintList = ColorStateList.valueOf(theme.complicationColor)
         listOf(
-            complication1TextView,
-            complication2TextView,
-            complication3TextView,
-            complication4TextView,
-            complication5TextView,
-            complication6TextView,
-            tempCurIconView,
-            tempCurTextView
+            binding.complication1TextView,
+            binding.complication2TextView,
+            binding.complication3TextView,
+            binding.complication4TextView,
+            binding.complication5TextView,
+            binding.complication6TextView,
+            binding.tempCurIconView,
+            binding.tempCurTextView
         ).forEach {
             it.setTextColor(theme.complicationColor)
             it.compoundDrawableTintList = tintList
@@ -123,8 +127,8 @@ class WatchFaceView @JvmOverloads constructor(
             setTime(Date(time.millis))
         }
 
-        minute.text = formatTwoDigitNumber(calendar.get(Calendar.MINUTE))
-        hour.text = formatTwoDigitNumber(if (DateFormat.is24HourFormat(context)) {
+        binding.minute.text = formatTwoDigitNumber(calendar.get(Calendar.MINUTE))
+        binding.hour.text = formatTwoDigitNumber(if (DateFormat.is24HourFormat(context)) {
             calendar.get(Calendar.HOUR_OF_DAY)
         } else calendar.get(Calendar.HOUR).takeIf { it != 0 } ?: 12)
     }
@@ -137,25 +141,25 @@ class WatchFaceView @JvmOverloads constructor(
 
     fun setWeather(weather: Either<Throwable, Weather>) {
         fun setNoTodayWeather() {
-            tempMinView.isVisible = false
-            tempMaxView.isVisible = false
-            tempProgressView.progress = 0
+            binding.tempMinView.isVisible = false
+            binding.tempMaxView.isVisible = false
+            binding.tempProgressView.progress = 0
         }
 
         when (weather) {
-            is Either.Right -> weather.b.apply {
+            is Either.Right -> weather.value.apply {
                 // Format current weather
-                tempCurIconView.isVisible = current != null
+                binding.tempCurIconView.isVisible = current != null
                 if (current != null) {
-                    tempCurTextView.text = formatRich(current.temp)
+                    binding.tempCurTextView.text = formatRich(current.temp)
                 }
 
                 // Format today weather
                 if (today != null) {
-                    tempMinView.isVisible = true
-                    tempMaxView.isVisible = true
-                    tempMinView.text = format(today.tempMin)
-                    tempMaxView.text = format(today.tempMax)
+                    binding.tempMinView.isVisible = true
+                    binding.tempMaxView.isVisible = true
+                    binding.tempMinView.text = format(today.tempMin)
+                    binding.tempMaxView.text = format(today.tempMax)
 
                     val progress = if (current != null) {
                         val tempCur = max(min(current.temp.c, today.tempMax.c), today.tempMin.c)
@@ -168,8 +172,9 @@ class WatchFaceView @JvmOverloads constructor(
                     } else {
                         1f
                     }
-                    tempProgressView.progress = (progress * tempProgressView.max).roundToInt()
-                    tempProgressView.progressDrawable
+                    binding.tempProgressView.progress =
+                        (progress * binding.tempProgressView.max).roundToInt()
+                    binding.tempProgressView.progressDrawable
                         .let { it as LayerDrawable }
                         .let { it.findDrawableByLayerId(android.R.id.progress) }
                         .let {
@@ -181,8 +186,8 @@ class WatchFaceView @JvmOverloads constructor(
                     setNoTodayWeather()
                 }
             }
-            is Either.Left -> weather.a.apply {
-                tempCurTextView.text = when (this) {
+            is Either.Left -> weather.value.apply {
+                binding.tempCurTextView.text = when (this) {
                     is ApiLimitReachedException -> R.string.error_api_limit_reached
                     is GeolocationAccessException -> R.string.error_geolocation_access
                     is GeolocationEmptyException -> R.string.error_geolocation_empty
@@ -191,7 +196,7 @@ class WatchFaceView @JvmOverloads constructor(
                 }
                     ?.let(context::getString)
                     .orEmpty()
-                tempCurIconView.isVisible = false
+                binding.tempCurIconView.isVisible = false
                 setNoTodayWeather()
             }
         }
@@ -201,15 +206,15 @@ class WatchFaceView @JvmOverloads constructor(
 
             // Request to redraw the arc
             // layout
-            tempCurTextView.getParentArcLayoutAndRetainInTag().notifyChildrenChanged()
+            binding.tempCurTextView.getParentArcLayoutAndRetainInTag().notifyChildrenChanged()
         }
     }
 
     fun setVisibility(visibility: Visibility) {
-        arcTopStart.isVisible = visibility.isTopStartVisible
-        arcTopEnd.isVisible = visibility.isTopEndVisible
-        arcBottomStart.isVisible = visibility.isBottomStartVisible
-        arcBottomEnd.isVisible = visibility.isBottomEndVisible
+        binding.arcTopStart.isVisible = visibility.isTopStartVisible
+        binding.arcTopEnd.isVisible = visibility.isTopEndVisible
+        binding.arcBottomStart.isVisible = visibility.isBottomStartVisible
+        binding.arcBottomEnd.isVisible = visibility.isBottomEndVisible
     }
 
     fun setComplications(complications: Map<Int, Pair<Drawable?, String?>>) {
@@ -227,12 +232,12 @@ class WatchFaceView @JvmOverloads constructor(
     }
 
     private fun findComplicationViewById(id: Int) = when (id) {
-        WATCH_COMPLICATION_FIRST -> complication1TextView
-        WATCH_COMPLICATION_SECOND -> complication2TextView
-        WATCH_COMPLICATION_THIRD -> complication5TextView
-        WATCH_COMPLICATION_FOURTH -> complication6TextView
-        WATCH_COMPLICATION_FIFTH -> complication3TextView
-        WATCH_COMPLICATION_SIXTH -> complication4TextView
+        WATCH_COMPLICATION_FIRST -> binding.complication1TextView
+        WATCH_COMPLICATION_SECOND -> binding.complication2TextView
+        WATCH_COMPLICATION_THIRD -> binding.complication5TextView
+        WATCH_COMPLICATION_FOURTH -> binding.complication6TextView
+        WATCH_COMPLICATION_FIFTH -> binding.complication3TextView
+        WATCH_COMPLICATION_SIXTH -> binding.complication4TextView
         else -> throw IllegalArgumentException("Unknown watch face complication id [$id]")
     }
 

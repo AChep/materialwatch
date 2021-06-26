@@ -5,6 +5,7 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
 import androidx.core.graphics.ColorUtils
 import androidx.lifecycle.Observer
@@ -15,6 +16,7 @@ import com.artemchep.config.Config
 import com.artemchep.essence.ACTION_PERMISSIONS_CHANGED
 import com.artemchep.essence.Cfg
 import com.artemchep.essence.R
+import com.artemchep.essence.databinding.ActivityMainBinding
 import com.artemchep.essence.domain.adapters.geolocation.GmsGeolocationPort
 import com.artemchep.essence.domain.adapters.weather.WeatherPort
 import com.artemchep.essence.domain.flow.flowOfTime
@@ -37,8 +39,6 @@ import com.artemchep.essence.ui.model.ConfigItem
 import com.artemchep.essence.ui.views.WatchFaceView
 import com.google.android.gms.wearable.DataClient
 import com.google.android.gms.wearable.Wearable
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.layout_toolbar.*
 import kotlinx.coroutines.flow.filter
 
 /**
@@ -76,6 +76,11 @@ class MainActivity : ActivityBase(),
 
     private val dataClientCfgAdapter by lazy { DataClientCfgAdapter(this) }
 
+    private val binding by lazy {
+        ActivityMainBinding
+            .bind(findViewById<ViewGroup>(android.R.id.content).getChildAt(0))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -89,14 +94,14 @@ class MainActivity : ActivityBase(),
     }
 
     private fun setupView() {
-        actionAboutBtn.setOnClickListener(this)
+        binding.toolbarView?.actionAboutBtn?.setOnClickListener(this)
 
         adapter = MainAdapter(mutableListOf()).apply {
             // Handle item click
             onItemClickListener = this@MainActivity
         }
 
-        recyclerView.apply {
+        binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(this@MainActivity)
             adapter = this@MainActivity.adapter
         }
@@ -248,9 +253,9 @@ class MainActivity : ActivityBase(),
         } else Color.BLACK
 
         // Change the color of toolbar
-        appbarView.setBackgroundColor(accentColor)
-        titleTextView.setTextColor(contentColor)
-        actionAboutBtn.imageTintList = ColorStateList.valueOf(contentColor)
+        binding.appbarView.setBackgroundColor(accentColor)
+        binding.toolbarView?.titleTextView?.setTextColor(contentColor)
+        binding.toolbarView?.actionAboutBtn?.imageTintList = ColorStateList.valueOf(contentColor)
 
         // Change the color of status bar
         window.apply {

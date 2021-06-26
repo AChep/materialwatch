@@ -2,7 +2,6 @@ package com.artemchep.essence.domain.adapters.weather
 
 import android.util.Log
 import arrow.core.Either
-import arrow.core.orNull
 import arrow.core.right
 import com.artemchep.essence.domain.models.Geolocation
 import com.artemchep.essence.domain.models.Time

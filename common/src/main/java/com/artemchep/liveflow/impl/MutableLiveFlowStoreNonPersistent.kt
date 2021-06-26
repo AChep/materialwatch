@@ -1,5 +1,6 @@
 package com.artemchep.liveflow.impl
 
+import arrow.core.None
 import arrow.core.Option
 import com.artemchep.liveflow.MutableLiveFlowStore
 
@@ -8,7 +9,7 @@ import com.artemchep.liveflow.MutableLiveFlowStore
  * view.
  */
 class MutableLiveFlowStoreNonPersistent<T> : MutableLiveFlowStore<T> {
-    private val result: Option<T> = Option.empty()
+    private val result: Option<T> = None
 
     override fun set(value: T) = Unit
 

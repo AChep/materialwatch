@@ -4,12 +4,13 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.artemchep.essence.R
+import com.artemchep.essence.databinding.ActivityConfigBinding
 import com.artemchep.essence.ui.adapter.PickerAdapter
 import com.artemchep.essence.ui.interfaces.OnItemClickListener
 import com.artemchep.essence.ui.model.ConfigPickerItem
-import kotlinx.android.synthetic.main.activity_config.*
 
 /**
  * @author Artem Chepurnoy
@@ -38,6 +39,11 @@ class PickerActivity : ActivityBase(), OnItemClickListener<ConfigPickerItem> {
 
     private lateinit var adapter: PickerAdapter
 
+    private val binding by lazy {
+        ActivityConfigBinding
+            .bind(findViewById<ViewGroup>(android.R.id.content).getChildAt(0))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_config)
@@ -48,7 +54,7 @@ class PickerActivity : ActivityBase(), OnItemClickListener<ConfigPickerItem> {
             onItemClickListener = this@PickerActivity
         }
 
-        recyclerView.apply {
+        binding.recyclerView.apply {
             isEdgeItemsCenteringEnabled = true
             layoutManager = LinearLayoutManager(this@PickerActivity)
 

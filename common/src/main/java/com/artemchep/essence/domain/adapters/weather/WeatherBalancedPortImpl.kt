@@ -23,8 +23,8 @@ class WeatherBalancedPortImpl(providers: List<WeatherPort>) : WeatherPort {
         lateinit var e: Throwable
         for (i in 0 until providers.size) {
             val value = providers.first().getWeather(geolocation)
-            if (value is Either.Left && value.a is ApiLimitReachedException) {
-                e = value.a
+            if (value is Either.Left && value.value is ApiLimitReachedException) {
+                e = value.value
 
                 // Resort the providers list, so we won't pull
                 // it provider soon.
@@ -43,7 +43,7 @@ class WeatherBalancedPortImpl(providers: List<WeatherPort>) : WeatherPort {
             }
         }
 
-        return Either.left(e)
+        return Either.Left(e)
     }
 
 }

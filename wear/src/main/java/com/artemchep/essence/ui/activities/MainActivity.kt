@@ -3,6 +3,7 @@ package com.artemchep.essence.ui.activities
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -11,12 +12,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.artemchep.essence.ACTION_PERMISSIONS_CHANGED
 import com.artemchep.essence.Cfg
 import com.artemchep.essence.R
+import com.artemchep.essence.databinding.ActivityConfigBinding
 import com.artemchep.essence.domain.models.*
 import com.artemchep.essence.domain.viewmodel.SettingsViewModel
 import com.artemchep.essence.ui.adapter.MainAdapter
 import com.artemchep.essence.ui.interfaces.OnItemClickListener
 import com.artemchep.essence.ui.model.ConfigItem
-import kotlinx.android.synthetic.main.activity_config.*
 
 /**
  * @author Artem Chepurnoy
@@ -31,6 +32,11 @@ class MainActivity : ActivityBase(), OnItemClickListener<ConfigItem> {
 
     private lateinit var viewModel: SettingsViewModel
 
+    private val binding by lazy {
+        ActivityConfigBinding
+            .bind(findViewById<ViewGroup>(android.R.id.content).getChildAt(0))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_config)
@@ -40,7 +46,7 @@ class MainActivity : ActivityBase(), OnItemClickListener<ConfigItem> {
             onItemClickListener = this@MainActivity
         }
 
-        recyclerView.apply {
+        binding.recyclerView.apply {
             isEdgeItemsCenteringEnabled = true
             layoutManager = LinearLayoutManager(this@MainActivity)
 

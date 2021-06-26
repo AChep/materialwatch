@@ -1,6 +1,7 @@
 package com.artemchep.essence.domain.adapters.weather.darksky
 
 import arrow.core.Either
+import com.artemchep.essence.domain.adapters.json
 import com.artemchep.essence.domain.adapters.weather.darksky.beans.ForecastBean
 import com.artemchep.essence.domain.models.*
 import com.artemchep.essence.domain.ports.WeatherPort
@@ -10,8 +11,6 @@ import com.github.kittinunf.fuel.coroutines.awaitObjectResponse
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.serialization.kotlinxDeserializerOf
 import kotlinx.coroutines.Dispatchers
-import kotlinx.serialization.ImplicitReflectionSerializer
-import kotlinx.serialization.json.Json
 
 private const val API_KEY = BuildConfig.API_DARK_SKY
 
@@ -20,19 +19,18 @@ private const val API_KEY = BuildConfig.API_DARK_SKY
  */
 class WeatherDarkSkyPortImpl : WeatherPort {
 
-    @ImplicitReflectionSerializer
     override suspend fun getWeather(geolocation: Geolocation): Either<Throwable, Weather> {
         val forecast = try {
             createRequest(geolocation).await<ForecastBean>()
         } catch (e: Throwable) {
-            return Either.left(e)
+            return Either.Left(e)
         }
 
         // Convert the bean to the common weather
         // model.
         val current = forecast.currently
         val today = forecast.daily.days.first()
-        return Either.right(
+        return Either.Right(
             Weather(
                 current = WeatherCurrent(
                     wind = Wind(mps = current.wind),
@@ -54,10 +52,9 @@ class WeatherDarkSkyPortImpl : WeatherPort {
                 )
             )
 
-    @ImplicitReflectionSerializer
     private suspend inline fun <reified T : Any> Request.await() =
         awaitObjectResponse<T>(
-            kotlinxDeserializerOf(Json.nonstrict),
+            kotlinxDeserializerOf(json),
             Dispatchers.IO
         ).third
 

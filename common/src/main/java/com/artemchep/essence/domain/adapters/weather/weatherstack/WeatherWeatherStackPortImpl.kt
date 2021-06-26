@@ -1,6 +1,7 @@
 package com.artemchep.essence.domain.adapters.weather.weatherstack
 
 import arrow.core.Either
+import com.artemchep.essence.domain.adapters.json
 import com.artemchep.essence.domain.adapters.weather.weatherstack.beans.ForecastBean
 import com.artemchep.essence.domain.models.*
 import com.artemchep.essence.domain.ports.WeatherPort
@@ -10,8 +11,6 @@ import com.github.kittinunf.fuel.coroutines.awaitObjectResponse
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.serialization.kotlinxDeserializerOf
 import kotlinx.coroutines.Dispatchers
-import kotlinx.serialization.ImplicitReflectionSerializer
-import kotlinx.serialization.json.Json
 
 private const val API_KEY = BuildConfig.API_WEATHER_STACK
 
@@ -22,17 +21,16 @@ private const val ENDPOINT = "http://api.weatherstack.com"
  */
 class WeatherWeatherStackPortImpl : WeatherPort {
 
-    @ImplicitReflectionSerializer
     override suspend fun getWeather(geolocation: Geolocation): Either<Throwable, Weather> {
         val forecast = try {
             createRequest(geolocation).await<ForecastBean>()
         } catch (e: Throwable) {
-            return Either.left(e)
+            return Either.Left(e)
         }
 
         // Convert the bean to the common weather
         // model.
-        return Either.right(
+        return Either.Right(
             Weather(
                 current = WeatherCurrent(
                     wind = Wind(mps = forecast.current.wind),
@@ -53,10 +51,9 @@ class WeatherWeatherStackPortImpl : WeatherPort {
                 )
             )
 
-    @ImplicitReflectionSerializer
     private suspend inline fun <reified T : Any> Request.await() =
         awaitObjectResponse<T>(
-            kotlinxDeserializerOf(Json.nonstrict),
+            kotlinxDeserializerOf(json),
             Dispatchers.IO
         ).third
 

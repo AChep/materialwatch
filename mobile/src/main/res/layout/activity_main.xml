@@ -13,7 +13,11 @@
         android:clipChildren="false"
         android:fitsSystemWindows="true">
 
-        <include layout="@layout/layout_toolbar" />
+        <include
+            android:id="@+id/toolbarView"
+            layout="@layout/layout_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize" />
 
         <FrameLayout
             android:layout_width="@dimen/watch_size"

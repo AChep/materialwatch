@@ -1,12 +1,10 @@
 apply plugin: 'com.android.application'
 
-apply plugin: 'kotlin-platform-android'
-
-apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-kapt'
 
-apply plugin: 'io.fabric'
+apply plugin: 'com.google.firebase.crashlytics'
 
 android {
     compileSdkVersion sdk_target
@@ -68,11 +66,8 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
-}
-
-kotlin {
-    experimental {
-        coroutines 'enable'
+    buildFeatures {
+        viewBinding true
     }
 }
 
@@ -81,18 +76,12 @@ dependencies {
     implementation "com.artemchep.config:config:$config_version"
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlin_coroutines_version"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlin_coroutines_version"
     implementation "com.afollestad.material-dialogs:core:$md_lib_version"
 
-    implementation "io.arrow-kt:arrow-core-data:$arrow_version"
-    implementation "io.arrow-kt:arrow-core-extensions:$arrow_version"
-    implementation "io.arrow-kt:arrow-syntax:$arrow_version"
-    implementation "io.arrow-kt:arrow-typeclasses:$arrow_version"
-    implementation "io.arrow-kt:arrow-extras-data:$arrow_version"
-    implementation "io.arrow-kt:arrow-extras-extensions:$arrow_version"
     implementation "io.arrow-kt:arrow-optics:$arrow_version"
+    implementation "io.arrow-kt:arrow-core:$arrow_version"
+    implementation 'com.google.firebase:firebase-crashlytics:18.1.0'
+    implementation 'com.google.firebase:firebase-analytics:19.0.0'
     kapt "io.arrow-kt:arrow-meta:$arrow_version"
 
     implementation "androidx.core:core-ktx:$ktx_lib_version"
@@ -103,13 +92,12 @@ dependencies {
     implementation "com.google.android.material:material:$material_version"
 
     implementation "com.google.android.support:wearable:$wearable_version"
-    implementation "com.google.android.gms:play-services-wearable:17.0.0"
+    implementation "com.google.android.gms:play-services-wearable:17.1.0"
     compileOnly "com.google.android.wearable:wearable:$wearable_version"
 
     implementation "com.google.firebase:firebase-analytics:$firebase_analytics_version"
-    implementation "com.crashlytics.sdk.android:crashlytics:$firebase_crashlytics_version"
 
-    testImplementation 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 }

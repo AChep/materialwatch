@@ -5,11 +5,13 @@ import android.os.Bundle
 import android.support.wearable.complications.ComplicationData
 import android.support.wearable.complications.ComplicationHelperActivity
 import android.view.View
+import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.artemchep.essence.R
+import com.artemchep.essence.databinding.ActivityConfigComplicationsBinding
 import com.artemchep.essence.domain.models.FailureScreen
 import com.artemchep.essence.domain.models.LoadingScreen
 import com.artemchep.essence.domain.models.OkScreen
@@ -18,7 +20,6 @@ import com.artemchep.essence.ui.adapter.MainAdapter
 import com.artemchep.essence.ui.interfaces.OnItemClickListener
 import com.artemchep.essence.ui.model.ConfigItem
 import com.artemchep.essence.viewmodel.ComplicationViewModel
-import kotlinx.android.synthetic.main.activity_config_complications.*
 
 /**
  * @author Artem Chepurnoy
@@ -29,6 +30,11 @@ class ComplicationsActivity : ActivityBase(), OnItemClickListener<ConfigItem> {
 
     private lateinit var viewModel: ComplicationViewModel
 
+    private val binding by lazy {
+        ActivityConfigComplicationsBinding
+            .bind(findViewById<ViewGroup>(android.R.id.content).getChildAt(0))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_config_complications)
@@ -38,7 +44,7 @@ class ComplicationsActivity : ActivityBase(), OnItemClickListener<ConfigItem> {
             onItemClickListener = this@ComplicationsActivity
         }
 
-        complicationsRecyclerView.apply {
+        binding.complicationsRecyclerView.apply {
             isEdgeItemsCenteringEnabled = true
             layoutManager = LinearLayoutManager(this@ComplicationsActivity)
 
@@ -56,9 +62,9 @@ class ComplicationsActivity : ActivityBase(), OnItemClickListener<ConfigItem> {
 
     private fun ComplicationViewModel.setup() {
         screenLiveData.observe(this@ComplicationsActivity, Observer { screen ->
-            complicationsRecyclerView.isVisible = screen is OkScreen
-            progressView.isVisible = screen is LoadingScreen
-            errorView.isVisible = screen is FailureScreen
+            binding.complicationsRecyclerView.isVisible = screen is OkScreen
+            binding.progressView.isVisible = screen is LoadingScreen
+            binding.errorView.isVisible = screen is FailureScreen
 
             when (screen) {
                 is OkScreen -> {

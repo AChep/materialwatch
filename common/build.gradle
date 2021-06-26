@@ -1,22 +1,18 @@
 import java.text.SimpleDateFormat
 
-apply plugin: 'com.android.library'
-
-apply plugin: 'kotlin-platform-android'
-
-apply plugin: 'kotlin-android-extensions'
-
-apply plugin: 'kotlin-kapt'
-
-apply plugin: 'kotlinx-serialization'
+plugins {
+    id 'com.android.library'
+    id 'kotlin-android'
+    id 'kotlin-parcelize'
+    id 'kotlin-kapt'
+    id 'kotlinx-serialization'
+}
 
 android {
     compileSdkVersion sdk_target
     defaultConfig {
         minSdkVersion sdk_min
         targetSdkVersion sdk_target
-        versionCode version_code
-        versionName version_name
     }
 
     Date date = Calendar.getInstance().getTime()
@@ -47,27 +43,21 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
-}
-
-androidExtensions {
-    experimental = true
+    buildFeatures {
+        viewBinding true
+    }
 }
 
 dependencies {
     api "com.artemchep.config:config:$config_version"
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlin_coroutines_version"
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.14.0"
+    api "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlin_coroutines_version"
+    api "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization"
 
-    implementation "io.arrow-kt:arrow-core-data:$arrow_version"
-    implementation "io.arrow-kt:arrow-core-extensions:$arrow_version"
-    implementation "io.arrow-kt:arrow-syntax:$arrow_version"
-    implementation "io.arrow-kt:arrow-typeclasses:$arrow_version"
-    implementation "io.arrow-kt:arrow-extras-data:$arrow_version"
-    implementation "io.arrow-kt:arrow-extras-extensions:$arrow_version"
     implementation "io.arrow-kt:arrow-optics:$arrow_version"
+    implementation "io.arrow-kt:arrow-core:$arrow_version"
     kapt "io.arrow-kt:arrow-meta:$arrow_version"
 
     implementation "androidx.core:core-ktx:$ktx_lib_version"
@@ -81,10 +71,10 @@ dependencies {
     implementation "com.github.kittinunf.fuel:fuel-coroutines:$fuel_version"
     implementation "com.github.kittinunf.fuel:fuel-kotlinx-serialization:$fuel_version"
 
-    implementation 'com.google.android.gms:play-services-location:17.0.0'
+    implementation 'com.google.android.gms:play-services-location:18.0.0'
     implementation "com.google.android.material:material:$material_version"
 
     implementation "com.google.android.support:wearable:$wearable_version"
-    implementation "com.google.android.gms:play-services-wearable:17.0.0"
+    implementation "com.google.android.gms:play-services-wearable:17.1.0"
     compileOnly "com.google.android.wearable:wearable:$wearable_version"
 }

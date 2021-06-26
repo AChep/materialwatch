@@ -1,6 +1,8 @@
 package com.artemchep.liveflow.impl
 
+import arrow.core.None
 import arrow.core.Option
+import arrow.core.Some
 import com.artemchep.liveflow.MutableLiveFlowStore
 
 /**
@@ -9,10 +11,10 @@ import com.artemchep.liveflow.MutableLiveFlowStore
  */
 class MutableLiveFlowStorePersistent<T> : MutableLiveFlowStore<T> {
     @Volatile
-    private var result: Option<T> = Option.empty()
+    private var result: Option<T> = None
 
     override fun set(value: T) {
-        result = Option.just(value)
+        result = Some(value)
     }
 
     override fun get(): Option<T> = result

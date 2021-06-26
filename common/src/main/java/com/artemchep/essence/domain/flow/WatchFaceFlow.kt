@@ -9,12 +9,10 @@ import arrow.optics.Optional
 import arrow.optics.optics
 import com.artemchep.essence.domain.exceptions.NoDataException
 import com.artemchep.essence.domain.models.*
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 
 private const val DEBOUNCE_COMPLICATIONS_MS = 36L
 
-@UseExperimental(ExperimentalCoroutinesApi::class)
 fun WatchFaceFlow(
     timeFlow: Flow<Time>,
     themeFlow: Flow<Theme>,
@@ -71,15 +69,15 @@ private fun Flow<WatchFaceBuilder>.delta(): Flow<WatchFaceDelta<*>> =
             old: WatchFaceBuilder?,
             new: WatchFaceBuilder
         ): Option<T> =
-            getOption(new)
-                .map {
-                    if (old == null || getOption(old) != it) {
+            getOrNull(new)
+                ?.let {
+                    if (old == null || getOrNull(old) != it) {
                         it
                     } else {
                         null
                     }
                 }
-                .flatMap { it.toOption() }
+                .toOption()
 
         collect { value ->
             suspend fun <T> emitIfChanged(

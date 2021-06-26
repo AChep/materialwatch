@@ -45,7 +45,7 @@ class GmsGeolocationPort(context: Context) : GeolocationPort {
                 is ExecutionException -> GeolocationAccessException(e)
                 else -> e
             }.let {
-                Either.left(it)
+                Either.Left(it)
             }
         }
     }

@@ -1,6 +1,7 @@
 package com.artemchep.essence.domain.adapters.weather.accuweather
 
 import arrow.core.Either
+import com.artemchep.essence.domain.adapters.json
 import com.artemchep.essence.domain.adapters.weather.accuweather.beans.ForecastCurrentlyBean
 import com.artemchep.essence.domain.adapters.weather.accuweather.beans.ForecastDailyBean
 import com.artemchep.essence.domain.adapters.weather.accuweather.beans.GeopositionBean
@@ -12,8 +13,6 @@ import com.github.kittinunf.fuel.coroutines.awaitObjectResponse
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.serialization.kotlinxDeserializerOf
 import kotlinx.coroutines.Dispatchers
-import kotlinx.serialization.ImplicitReflectionSerializer
-import kotlinx.serialization.json.Json
 
 private const val API_KEY = BuildConfig.API_ACCU_WEATHER
 
@@ -24,14 +23,19 @@ private const val ENDPOINT = "http://dataservice.accuweather.com"
  */
 class WeatherAccuWeatherPortImpl : WeatherPort {
 
-    @ImplicitReflectionSerializer
     override suspend fun getWeather(geolocation: Geolocation): Either<Throwable, Weather> {
-        val gbean = createGeopositionRequest(geolocation).await<GeopositionBean>()
-        val current = createCurrentlyRequest(gbean).await<ForecastCurrentlyBean>()
-        val daily = createDailyRequest(gbean).await<ForecastDailyBean>()
+        val (current, today) = try {
+            val gbean = createGeopositionRequest(geolocation).await<GeopositionBean>()
+            val current = createCurrentlyRequest(gbean).await<ForecastCurrentlyBean>()
+            val today = createDailyRequest(gbean).await<ForecastDailyBean>()
+                .days
+                .first()
+            current to today
+        } catch (e: Throwable) {
+            return Either.Left(e)
+        }
 
-        val today = daily.days.first()
-        return Either.right(
+        return Either.Right(
             Weather(
                 current = WeatherCurrent(
                     wind = Wind(mps = current.wind.speed.metric.value),
@@ -72,10 +76,9 @@ class WeatherAccuWeatherPortImpl : WeatherPort {
                 )
             )
 
-    @ImplicitReflectionSerializer
     private suspend inline fun <reified T : Any> Request.await() =
         awaitObjectResponse<T>(
-            kotlinxDeserializerOf(Json.nonstrict),
+            kotlinxDeserializerOf(json),
             Dispatchers.IO
         ).third
 
