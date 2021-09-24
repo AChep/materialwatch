@@ -5,11 +5,9 @@ import com.artemchep.essence.domain.models.Geolocation
 import com.artemchep.essence.domain.models.Moment
 import com.artemchep.essence.domain.models.Time
 import com.artemchep.essence.domain.ports.GeolocationPort
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.*
 
-@UseExperimental(ExperimentalCoroutinesApi::class)
 fun GeolocationPort.asFlow(
     permissionsChangedFlow: Flow<Unit>,
     periodFlow: Flow<Long>,

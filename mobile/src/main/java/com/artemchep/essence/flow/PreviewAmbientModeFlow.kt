@@ -6,8 +6,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.isActive
 
-private const val AMBIENT_MODE_PERIOD = 3500L
+private const val AMBIENT_MODE_PERIOD = 13500L
 
+@Suppress("FunctionName")
 fun PreviewAmbientModeFlow() =
     flow {
         var ambientMode: AmbientMode = AmbientMode.On

@@ -3,11 +3,9 @@ package com.artemchep.essence.domain.flow
 import com.artemchep.essence.Cfg
 import com.artemchep.essence.domain.models.AmbientMode
 import com.artemchep.essence.domain.models.Theme
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 
-@UseExperimental(ExperimentalCoroutinesApi::class)
 fun ThemeFlow(
     themeNameFlow: Flow<String>,
     accentColorFlow: Flow<Int>,

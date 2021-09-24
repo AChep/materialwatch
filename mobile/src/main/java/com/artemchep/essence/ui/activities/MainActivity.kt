@@ -1,5 +1,6 @@
 package com.artemchep.essence.ui.activities
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
@@ -8,10 +9,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
 import androidx.core.graphics.ColorUtils
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.artemchep.bindin.bindIn
 import com.artemchep.config.Config
 import com.artemchep.essence.ACTION_PERMISSIONS_CHANGED
 import com.artemchep.essence.Cfg
@@ -26,7 +27,6 @@ import com.artemchep.essence.domain.models.SETTINGS_ITEM_THEME
 import com.artemchep.essence.domain.models.WatchFaceTheme
 import com.artemchep.essence.domain.viewmodel.SettingsViewModel
 import com.artemchep.essence.domain.viewmodel.WatchFaceViewModel
-import com.artemchep.essence.extensions.injectObserver
 import com.artemchep.essence.flow.PreviewAmbientModeFlow
 import com.artemchep.essence.flow.PreviewComplicationRawFlow
 import com.artemchep.essence.sync.DataClientCfgAdapter
@@ -40,6 +40,7 @@ import com.artemchep.essence.ui.views.WatchFaceView
 import com.google.android.gms.wearable.DataClient
 import com.google.android.gms.wearable.Wearable
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
 
 /**
  * @author Artem Chepurnoy
@@ -119,23 +120,22 @@ class MainActivity : ActivityBase(),
             ambientModeFlow,
             complicationRawFlow
         )
-        watchFaceViewModel = ViewModelProviders
-            .of(this, watchFaceViewModelFactory)
+        watchFaceViewModel = ViewModelProvider(this, watchFaceViewModelFactory)
             .get(WatchFaceViewModel::class.java)
         watchFaceViewModel.setup()
     }
 
     private fun WatchFaceViewModel.setup() {
-        watchFaceFlow
-            .filter {
-                when (it) {
+        bindIn(watchFaceFlow) { deltas ->
+            deltas.forEach { d ->
+                when (d) {
                     is WatchFaceTheme -> {
                         // Get the background color from a theme and set it
                         // separately from a theme.
-                        val backgroundColor = it.value.backgroundColor
+                        val backgroundColor = d.value.backgroundColor
                         watchFaceView.apply {
                             // Set theme
-                            setTheme(it.value.copy(backgroundColor = Color.TRANSPARENT))
+                            setTheme(d.value.copy(backgroundColor = Color.TRANSPARENT))
                             // Set a background
                             val bg = background as? CircleDrawable
                                 ?: CircleDrawable().also(::setBackground)
@@ -144,15 +144,11 @@ class MainActivity : ActivityBase(),
 
                         // do not pass it to the watch face
                         // view!
-                        false
                     }
-                    else ->
-                        true
+                    else -> watchFaceView.setDelta(d)
                 }
             }
-            .injectObserver(this@MainActivity) {
-                watchFaceView.setDelta(it)
-            }
+        }
     }
 
     private fun setupSettingsViewModel() {
@@ -163,14 +159,13 @@ class MainActivity : ActivityBase(),
                 SETTINGS_ITEM_ACCENT
             )
         )
-        settingsViewModel = ViewModelProviders
-            .of(this, settingsViewModelFactory)
+        settingsViewModel = ViewModelProvider(this, settingsViewModelFactory)
             .get(SettingsViewModel::class.java)
         settingsViewModel.setup()
     }
 
     private fun SettingsViewModel.setup() {
-        screenLiveData.observe(this@MainActivity, Observer { screen ->
+        bindIn(screenLiveData) { screen ->
             when (screen) {
                 is OkScreen<List<ConfigItem>> -> {
                     adapter.apply {
@@ -182,15 +177,15 @@ class MainActivity : ActivityBase(),
                     }
                 }
             }
-        })
-        showPickerEvent.observe(this@MainActivity, Observer { event ->
+        }
+        bindIn(showPickerEvent) { event ->
             val data = event.consume()
             if (data != null) {
                 val dialog = PickerDialog.create(data)
                 dialog.show(supportFragmentManager, PickerDialog.TAG)
             }
-        })
-        showGrantRuntimePermissionsEvent.observe(this@MainActivity, Observer { event ->
+        }
+        bindIn(showGrantRuntimePermissionsEvent) { event ->
             val data = event.consume()
             if (data != null) {
                 val activity = this@MainActivity
@@ -200,7 +195,7 @@ class MainActivity : ActivityBase(),
                     data.requestCode
                 )
             }
-        })
+        }
     }
 
     private fun setupRuntimePermissions() {

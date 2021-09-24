@@ -7,11 +7,9 @@ import androidx.core.util.forEach
 import com.artemchep.essence.domain.models.AmbientMode
 import com.artemchep.essence.domain.models.Complication
 import com.artemchep.essence.domain.models.Time
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 
-@UseExperimental(ExperimentalCoroutinesApi::class)
 fun ComplicationFlow(
     context: Context,
     ambientModeFlow: Flow<AmbientMode>,

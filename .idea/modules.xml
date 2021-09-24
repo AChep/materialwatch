@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/essence.iml" filepath="$PROJECT_DIR$/.idea/modules/essence.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/common/essence.common.iml" filepath="$PROJECT_DIR$/.idea/modules/common/essence.common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/mobile/essence.mobile.iml" filepath="$PROJECT_DIR$/.idea/modules/mobile/essence.mobile.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/wear/essence.wear.iml" filepath="$PROJECT_DIR$/.idea/modules/wear/essence.wear.iml" />
+    </modules>
+  </component>
+</project>

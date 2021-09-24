@@ -7,10 +7,8 @@ import com.artemchep.essence.domain.models.Moment
 import com.artemchep.essence.domain.models.Time
 import com.artemchep.essence.domain.models.Weather
 import com.artemchep.essence.domain.ports.WeatherPort
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 
-@UseExperimental(ExperimentalCoroutinesApi::class)
 fun WeatherPort.asFlow(
     periodFlow: Flow<Long>,
     geolocationFlow: Flow<Either<Throwable, Geolocation>>,

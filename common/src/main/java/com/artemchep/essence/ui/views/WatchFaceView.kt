@@ -15,6 +15,7 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.isVisible
+import androidx.core.widget.TextViewCompat
 import arrow.core.Either
 import com.artemchep.essence.*
 import com.artemchep.essence.domain.exceptions.ApiLimitReachedException
@@ -51,6 +52,8 @@ class WatchFaceView @JvmOverloads constructor(
         WatchFaceBinding.bind(this)
     }
 
+    private var themePrev: Theme? = null
+
     private var weatherPrev: Either<Throwable, Weather>? = null
 
     override fun hasOverlappingRendering(): Boolean = false
@@ -65,27 +68,19 @@ class WatchFaceView @JvmOverloads constructor(
         }
     }
 
-    /**
-     * Enables or disables the anti-aliasing of all of the
-     * text views.
-     */
-    fun setAntiAlias(isEnabled: Boolean) {
-        listOf(
-            binding.hour, binding.minute,
-            binding.complication1TextView,
-            binding.complication2TextView,
-            binding.complication3TextView,
-            binding.complication4TextView,
-            binding.complication5TextView,
-            binding.complication6TextView
-        ).forEach {
-            it.paint.isAntiAlias = isEnabled
+    fun setTheme(theme: Theme) {
+        if (themePrev == theme) {
+            return
         }
+
+        setBackgroundColor(theme.backgroundColor)
+        setThemeTime(theme)
+        setThemeComplication(theme)
+
+        themePrev = theme
     }
 
-    fun setTheme(theme: Theme) {
-        setBackgroundColor(theme.backgroundColor)
-
+    private fun setThemeTime(theme: Theme) {
         binding.minute.apply {
             paint.isAntiAlias = theme.isAntialias
             setTextColor(theme.clockMinuteColor)
@@ -103,8 +98,9 @@ class WatchFaceView @JvmOverloads constructor(
                 setStrokeWidth(0f)
             }
         }
+    }
 
-        // Set complications color
+    private fun setThemeComplication(theme: Theme) {
         val tintList = ColorStateList.valueOf(theme.complicationColor)
         listOf(
             binding.complication1TextView,
@@ -116,9 +112,19 @@ class WatchFaceView @JvmOverloads constructor(
             binding.tempCurIconView,
             binding.tempCurTextView
         ).forEach {
-            it.setTextColor(theme.complicationColor)
-            it.compoundDrawableTintList = tintList
+            val hasChanged = it.textColors !== tintList ||
+                    it.paint.isAntiAlias != theme.isAntialias
+
+            TextViewCompat.setCompoundDrawableTintList(it, tintList)
+            it.setTextColor(tintList)
             it.paint.isAntiAlias = theme.isAntialias
+
+            if (hasChanged) {
+                // Force the re-render of the
+                // arc layout.
+                it.getParentArcLayoutAndRetainInTag().clearBitmapCache()
+                it.getParentArcLayoutAndRetainInTag().invalidate()
+            }
         }
     }
 
@@ -176,7 +182,7 @@ class WatchFaceView @JvmOverloads constructor(
                         (progress * binding.tempProgressView.max).roundToInt()
                     binding.tempProgressView.progressDrawable
                         .let { it as LayerDrawable }
-                        .let { it.findDrawableByLayerId(android.R.id.progress) }
+                        .findDrawableByLayerId(android.R.id.progress)
                         .let {
                             val startColor = 0xFF64c1ff.toInt()
                             val endColor = 0xFFffff52.toInt()
@@ -201,13 +207,22 @@ class WatchFaceView @JvmOverloads constructor(
             }
         }
 
-        if (weatherPrev != weather) {
-            weatherPrev = weather
-
+        val hasChanged = weatherPrev
+            ?.fold(
+                ifLeft = { e ->
+                    weather.swap().exists { it.javaClass == e.javaClass }
+                },
+                ifRight = { w ->
+                    weather.exists { it == w }
+                },
+            ) != true
+        if (hasChanged) {
             // Request to redraw the arc
             // layout
-            binding.tempCurTextView.getParentArcLayoutAndRetainInTag().notifyChildrenChanged()
+            binding.tempCurTextView.getParentArcLayoutAndRetainInTag().clearBitmapCache()
         }
+
+        weatherPrev = weather
     }
 
     fun setVisibility(visibility: Visibility) {
@@ -225,7 +240,7 @@ class WatchFaceView @JvmOverloads constructor(
                     setComplicationIcon(value.first)
                         .or(setComplicationContentText(value.second))
                 if (hasChanged) {
-                    getParentArcLayoutAndRetainInTag().notifyChildrenChanged()
+                    getParentArcLayoutAndRetainInTag().clearBitmapCache()
                 }
             }
         }

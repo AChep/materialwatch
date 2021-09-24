@@ -35,8 +35,10 @@ android {
 
     buildTypes {
         debug {
-            applicationIdSuffix = ".debug"
+//            applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
+
+            signingConfig signingConfigs.release
         }
         release {
             zipAlignEnabled true
@@ -68,8 +70,8 @@ dependencies {
 
     implementation "io.arrow-kt:arrow-optics:$arrow_version"
     implementation "io.arrow-kt:arrow-core:$arrow_version"
-    implementation 'com.google.firebase:firebase-crashlytics:18.1.0'
-    implementation 'com.google.firebase:firebase-analytics:19.0.0'
+    implementation 'com.google.firebase:firebase-crashlytics:18.2.1'
+    implementation 'com.google.firebase:firebase-analytics:19.0.1'
     kapt "io.arrow-kt:arrow-meta:$arrow_version"
 
     implementation "androidx.core:core-ktx:$ktx_lib_version"

@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.wear.widget.WearableLinearLayoutManager
 import com.artemchep.essence.R
 import com.artemchep.essence.databinding.ActivityConfigBinding
 import com.artemchep.essence.ui.adapter.PickerAdapter
@@ -49,7 +50,9 @@ class PickerActivity : ActivityBase(), OnItemClickListener<ConfigPickerItem> {
         setContentView(R.layout.activity_config)
 
         val title = intent!!.getStringExtra(EXTRA_TITLE)
-        val items = intent!!.getParcelableArrayListExtra<ConfigPickerItem>(EXTRA_ITEMS)
+        val items = intent!!
+            .getParcelableArrayListExtra<ConfigPickerItem>(EXTRA_ITEMS)!!
+            .toMutableList()
         adapter = PickerAdapter(items, title).apply {
             onItemClickListener = this@PickerActivity
         }

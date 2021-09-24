@@ -5,10 +5,10 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.artemchep.bindin.bindIn
 import com.artemchep.essence.ACTION_PERMISSIONS_CHANGED
 import com.artemchep.essence.Cfg
 import com.artemchep.essence.R
@@ -59,16 +59,18 @@ class MainActivity : ActivityBase(), OnItemClickListener<ConfigItem> {
             SETTINGS_ITEM_ACCENT,
             SETTINGS_ITEM_ABOUT
         )
-        viewModel = ViewModelProviders
-            .of(this, SettingsViewModel.Factory(application, Cfg, itemIds))
-            .get(SettingsViewModel::class.java)
+        viewModel = kotlin.run {
+            val factory = SettingsViewModel.Factory(application, Cfg, itemIds)
+            ViewModelProvider(this, factory)
+                .get(SettingsViewModel::class.java)
+        }
         viewModel.setup()
 
         setupRuntimePermissions()
     }
 
     private fun SettingsViewModel.setup() {
-        screenLiveData.observe(this@MainActivity, Observer { screen ->
+        bindIn(screenLiveData) { screen ->
             when (screen) {
                 is OkScreen<List<ConfigItem>> -> {
                     adapter.apply {
@@ -80,8 +82,8 @@ class MainActivity : ActivityBase(), OnItemClickListener<ConfigItem> {
                     }
                 }
             }
-        })
-        showDetailsEvent.observe(this@MainActivity, Observer { event ->
+        }
+        bindIn(showDetailsEvent) { event ->
             val id = event.consume()
             when (id) {
                 SETTINGS_ITEM_COMPLICATIONS -> {
@@ -93,8 +95,8 @@ class MainActivity : ActivityBase(), OnItemClickListener<ConfigItem> {
                     startActivity(intent)
                 }
             }
-        })
-        showPickerEvent.observe(this@MainActivity, Observer { event ->
+        }
+        bindIn(showPickerEvent) { event ->
             val data = event.consume()
             if (data != null) {
                 val intent = PickerActivity.newIntent(
@@ -105,8 +107,8 @@ class MainActivity : ActivityBase(), OnItemClickListener<ConfigItem> {
                 )
                 startActivityForResult(intent, data.requestCode)
             }
-        })
-        showGrantRuntimePermissionsEvent.observe(this@MainActivity, Observer { event ->
+        }
+        bindIn(showGrantRuntimePermissionsEvent) { event ->
             val data = event.consume()
             if (data != null) {
                 val activity = this@MainActivity
@@ -116,7 +118,7 @@ class MainActivity : ActivityBase(), OnItemClickListener<ConfigItem> {
                     data.requestCode
                 )
             }
-        })
+        }
     }
 
     private fun setupRuntimePermissions() {

@@ -45,12 +45,12 @@
 
     <style name="WatchFaceClock.Hour.Horizontal" parent="WatchFaceClock.Hour">
         <item name="android:gravity">end</item>
-        <item name="android:textSize">52sp</item>
+        <item name="android:textSize">64sp</item>
     </style>
 
     <style name="WatchFaceClock.Minute.Horizontal" parent="WatchFaceClock.Minute">
         <item name="android:gravity">start|bottom</item>
-        <item name="android:textSize">28sp</item>
+        <item name="android:textSize">40sp</item>
     </style>
 
     <style name="WatchFaceClock.Minute.Horizontal.Divider" parent="WatchFaceClock.Minute.Horizontal">

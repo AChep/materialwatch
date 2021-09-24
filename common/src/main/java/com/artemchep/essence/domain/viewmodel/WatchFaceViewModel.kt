@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable
 import android.util.SparseArray
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import arrow.core.Either
 import com.artemchep.essence.Cfg
 import com.artemchep.essence.domain.flow.*
@@ -14,8 +15,8 @@ import com.artemchep.essence.domain.ports.GeolocationPort
 import com.artemchep.essence.domain.ports.WeatherPort
 import com.artemchep.essence.domain.viewmodel.base.BaseViewModel
 import com.artemchep.liveflow.impl.shared
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
 
 /**
  * @author Artem Chepurnoy
@@ -64,7 +65,7 @@ class WatchFaceViewModel(
         complicationsFactoryFlow = complicationsRawFlow
     ).shared()
 
-    val watchFaceFlow: Flow<WatchFaceDelta<*>> = WatchFaceFlow(
+    val watchFaceFlow: Flow<List<WatchFaceDelta<*>>> = WatchFaceFlow(
         timeFlow = timeFlow,
         themeFlow = themeFlow,
         visibilityFlow = visibilityFlow,
@@ -72,8 +73,10 @@ class WatchFaceViewModel(
             .map { it.unbox() },
         complicationFlow = complicationsFlow
     )
-//        .debounce(16)
-//        .shared()
+        .debounce(16)
+        .flowOn(Dispatchers.Default)
+        .shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
+        .delta()
 
     /**
      * @author Artem Chepurnoy

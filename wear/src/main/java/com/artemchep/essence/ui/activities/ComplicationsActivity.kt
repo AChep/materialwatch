@@ -8,8 +8,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.artemchep.bindin.bindIn
 import com.artemchep.essence.R
 import com.artemchep.essence.databinding.ActivityConfigComplicationsBinding
 import com.artemchep.essence.domain.models.FailureScreen
@@ -51,7 +52,7 @@ class ComplicationsActivity : ActivityBase(), OnItemClickListener<ConfigItem> {
             adapter = this@ComplicationsActivity.adapter
         }
 
-        viewModel = ViewModelProviders.of(this).get(ComplicationViewModel::class.java)
+        viewModel = ViewModelProvider(this).get(ComplicationViewModel::class.java)
         viewModel.setup()
     }
 
@@ -61,7 +62,7 @@ class ComplicationsActivity : ActivityBase(), OnItemClickListener<ConfigItem> {
     }
 
     private fun ComplicationViewModel.setup() {
-        screenLiveData.observe(this@ComplicationsActivity, Observer { screen ->
+        bindIn(screenLiveData) { screen ->
             binding.complicationsRecyclerView.isVisible = screen is OkScreen
             binding.progressView.isVisible = screen is LoadingScreen
             binding.errorView.isVisible = screen is FailureScreen
@@ -77,8 +78,8 @@ class ComplicationsActivity : ActivityBase(), OnItemClickListener<ConfigItem> {
                     }
                 }
             }
-        })
-        showProviderForComplicationEvent.observe(this@ComplicationsActivity, Observer {
+        }
+        bindIn(showProviderForComplicationEvent) {
             val watchFaceComplicationId = it.consume()
             if (watchFaceComplicationId != null) {
                 val supportedTypes = intArrayOf(
@@ -98,7 +99,7 @@ class ComplicationsActivity : ActivityBase(), OnItemClickListener<ConfigItem> {
                 )
                 startActivity(intent)
             }
-        })
+        }
     }
 
     override fun onItemClick(view: View, model: ConfigItem) {

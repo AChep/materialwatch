@@ -19,7 +19,7 @@ fun WatchFaceFlow(
     visibilityFlow: Flow<Visibility>,
     weatherFlow: Flow<Either<Throwable, Weather>>,
     complicationFlow: Flow<Map<Int, Pair<Drawable?, String?>>>
-): Flow<WatchFaceDelta<*>> {
+): Flow<WatchFaceBuilder> {
     val weatherFlowWithStart = weatherFlow.onStart { emit(NoDataException().left()) }
     val complicationFlowWithStart = complicationFlow.onStart { emit(emptyMap()) }
     return timeFlow
@@ -43,7 +43,6 @@ fun WatchFaceFlow(
         ) { builder, complications ->
             builder.copy(complications = complications)
         }
-        .delta()
 }
 
 @optics
@@ -61,7 +60,7 @@ data class WatchFaceBuilder(
     companion object
 }
 
-private fun Flow<WatchFaceBuilder>.delta(): Flow<WatchFaceDelta<*>> =
+fun Flow<WatchFaceBuilder>.delta(): Flow<List<WatchFaceDelta<*>>> =
     flow {
         var previousValue: WatchFaceBuilder? = null
 
@@ -80,21 +79,25 @@ private fun Flow<WatchFaceBuilder>.delta(): Flow<WatchFaceDelta<*>> =
                 .toOption()
 
         collect { value ->
-            suspend fun <T> emitIfChanged(
+            fun <T> deltaOrNull(
                 lens: Optional<WatchFaceBuilder, T>,
                 factory: (T) -> WatchFaceDelta<T>
             ) = lens
                 .emptyIfNotChanged(previousValue, value)
                 .map { value ->
-                    val delta = factory(value)
-                    emit(delta as WatchFaceDelta<*>)
+                    factory(value)
                 }
+                .orNull()
 
-            emitIfChanged(WatchFaceBuilder.visibility, ::WatchFaceVisibility)
-            emitIfChanged(WatchFaceBuilder.weather, ::WatchFaceWeather)
-            emitIfChanged(WatchFaceBuilder.time, ::WatchFaceTime)
-            emitIfChanged(WatchFaceBuilder.theme, ::WatchFaceTheme)
-            emitIfChanged(WatchFaceBuilder.complications, ::WatchFaceComplication)
+            val deltas = listOfNotNull(
+                deltaOrNull(WatchFaceBuilder.visibility, ::WatchFaceVisibility),
+                deltaOrNull(WatchFaceBuilder.weather, ::WatchFaceWeather),
+                deltaOrNull(WatchFaceBuilder.time, ::WatchFaceTime),
+                deltaOrNull(WatchFaceBuilder.theme, ::WatchFaceTheme),
+                deltaOrNull(WatchFaceBuilder.complications, ::WatchFaceComplication),
+            )
+            if (deltas.isNotEmpty())
+                emit(deltas)
 
             previousValue = value
         }

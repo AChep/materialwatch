@@ -39,8 +39,10 @@ android {
 
     buildTypes {
         debug {
-            applicationIdSuffix = ".debug"
+            //applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
+
+            signingConfig signingConfigs.release
         }
         release {
             zipAlignEnabled true
@@ -69,7 +71,6 @@ dependencies {
     implementation "com.artemchep.config:config:$config_version"
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "com.afollestad.material-dialogs:core:$md_lib_version"
 
     implementation "io.arrow-kt:arrow-optics:$arrow_version"
     implementation "io.arrow-kt:arrow-core:$arrow_version"
@@ -79,6 +80,7 @@ dependencies {
 
     implementation "androidx.core:core-ktx:$ktx_lib_version"
     implementation "androidx.appcompat:appcompat:$appcompat_lib_version"
+    implementation "androidx.wear:wear:$wear_lib_version"
     implementation "androidx.constraintlayout:constraintlayout:$constraintlayout_lib_version"
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
 

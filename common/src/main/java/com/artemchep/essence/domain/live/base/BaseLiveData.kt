@@ -4,9 +4,6 @@ import androidx.lifecycle.LiveData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.BroadcastChannel
-import kotlinx.coroutines.channels.consumeEach
-import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -27,15 +24,6 @@ abstract class BaseLiveData<T> : LiveData<T>(), CoroutineScope {
     override fun onInactive() {
         job.cancel()
         super.onInactive()
-    }
-
-    protected inline fun <T> consumeEach(
-        channel: BroadcastChannel<T>,
-        crossinline block: (T) -> Unit
-    ) {
-        launch {
-            channel.consumeEach(block)
-        }
     }
 
 }

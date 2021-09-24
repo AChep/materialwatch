@@ -6,9 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.artemchep.liveflow.util.flowWithLifecycle
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
 
 private fun flowOfIntent(
     intentFilterBuilder: IntentFilter.() -> Unit,
@@ -19,9 +17,7 @@ private fun flowOfIntent(
         onActive = {
             object : BroadcastReceiver() {
                 override fun onReceive(context: Context, intent: Intent) {
-                    GlobalScope.launch {
-                        it.send(intent)
-                    }
+                    it.trySend(intent)
                 }
             }.also { observer ->
                 val intentFilter = IntentFilter().apply(intentFilterBuilder)

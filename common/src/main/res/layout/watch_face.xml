@@ -270,7 +270,7 @@
                 android:layout_marginStart="2dp"
                 android:layout_marginBottom="4dp"
                 android:textScaleX="0.8"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 app:layout_constraintBottom_toTopOf="@id/tempProgressView"
                 app:layout_constraintEnd_toEndOf="@id/tempMaxView"
                 app:layout_constraintStart_toEndOf="@id/tempCurIconView"

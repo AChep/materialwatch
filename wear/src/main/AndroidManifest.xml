@@ -15,11 +15,11 @@
         android:icon="@mipmap/ic_foreground"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat.NoActionBar">
+        android:theme="@style/Theme.MaterialComponents.NoActionBar">
 
-        <activity android:name="android.support.wearable.complications.ComplicationHelperActivity" />
+        <activity android:name="android.support.wearable.complications.ComplicationHelperActivity" android:exported="false"/>
 
-        <activity android:name=".ui.activities.MainActivity">
+        <activity android:name=".ui.activities.MainActivity" android:exported="true">
             <intent-filter>
                 <action android:name="com.artemchep.essence.CONFIG_COMPLICATION_SIMPLE" />
 
@@ -28,9 +28,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.activities.AboutActivity" />
-        <activity android:name=".ui.activities.ComplicationsActivity" />
-        <activity android:name=".ui.activities.PickerActivity" />
+        <activity android:name=".ui.activities.AboutActivity"  android:exported="false"/>
+        <activity android:name=".ui.activities.ComplicationsActivity"  android:exported="false"/>
+        <activity android:name=".ui.activities.PickerActivity" android:exported="false" />
 
         <meta-data
             android:name="com.google.android.wearable.standalone"
@@ -39,7 +39,8 @@
         <service
             android:name="com.artemchep.essence.service.WatchFaceService"
             android:label="@string/watchface_name"
-            android:permission="android.permission.BIND_WALLPAPER">
+            android:permission="android.permission.BIND_WALLPAPER"
+            android:exported="true">
             <meta-data
                 android:name="android.service.wallpaper"
                 android:resource="@xml/watch_face" />

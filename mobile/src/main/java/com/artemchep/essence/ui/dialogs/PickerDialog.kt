@@ -3,11 +3,10 @@ package com.artemchep.essence.ui.dialogs
 import android.app.Dialog
 import android.os.Bundle
 import androidx.fragment.app.DialogFragment
-import com.afollestad.materialdialogs.MaterialDialog
-import com.afollestad.materialdialogs.list.listItems
 import com.artemchep.essence.R
 import com.artemchep.essence.domain.models.PickerSource
 import com.artemchep.essence.ui.model.ConfigPickerItem
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 /**
  * @author Artem Chepurnoy
@@ -37,25 +36,28 @@ class PickerDialog : DialogFragment() {
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val args = arguments!!
+        val args = requireArguments()
 
         val requestCode = args.getInt(EXTRA_RC)
         val title = args.getString(EXTRA_TITLE)!!
         val items = args.getParcelableArrayList<ConfigPickerItem>(EXTRA_ITEMS)!!
 
-        val md = MaterialDialog(context!!)
-            .title(text = title)
-            .negativeButton(res = R.string.action_close)
-            .listItems(items = items.map { it.title }) { dialog, index, _ ->
+        val mdItems = items.map { it.title }.toTypedArray()
+        return MaterialAlertDialogBuilder(requireContext())
+            .setTitle(title)
+            .setItems(mdItems) { dialog, which ->
                 val a = activity
                 if (a is PickerDialogCallback) {
-                    a.onSingleItemPicked(requestCode, items[index].key)
+                    a.onSingleItemPicked(requestCode, items[which].key)
                     dialog.dismiss()
                 } else {
                     throw IllegalStateException("Activity does not implement PickerDialogCallback")
                 }
             }
-        return md
+            .setNegativeButton(R.string.action_close) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
     }
 
     /**

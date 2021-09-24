@@ -7,11 +7,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.ColorUtils
+import androidx.core.widget.ImageViewCompat
 import com.artemchep.essence.R
 import com.artemchep.essence.ui.adapters.AdapterBase
 import com.artemchep.essence.ui.interfaces.OnItemClickListener
 import com.artemchep.essence.ui.model.ConfigPickerItem
+import com.google.android.material.card.MaterialCardView
 
 /**
  * @author Artem Chepurnoy
@@ -38,12 +41,12 @@ open class PickerAdapter(
             val colorContent = if (colorIsDark) Color.WHITE else Color.BLACK
 
             holder.apply {
-                itemView.setBackgroundColor(model.color)
+                (itemView as MaterialCardView).setCardBackgroundColor(model.color)
                 titleTextView.text = model.title
                 titleTextView.setTextColor(colorContent)
                 checkImageView.apply {
                     visibility = if (model.key == selectedKey) {
-                        imageTintList = ColorStateList.valueOf(colorContent)
+                        ImageViewCompat.setImageTintList(this, ColorStateList.valueOf(colorContent))
                         View.VISIBLE
                     } else View.INVISIBLE
                 }

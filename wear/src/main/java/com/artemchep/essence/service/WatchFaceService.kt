@@ -14,6 +14,7 @@ import android.view.View
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
+import com.artemchep.bindin.bindIn
 import com.artemchep.essence.Cfg
 import com.artemchep.essence.R
 import com.artemchep.essence.WATCH_COMPLICATIONS
@@ -26,9 +27,9 @@ import com.artemchep.essence.domain.models.asAmbientMode
 import com.artemchep.essence.domain.viewmodel.WatchFaceViewModel
 import com.artemchep.essence.extensions.getLongMessage
 import com.artemchep.essence.extensions.getShortMessage
-import com.artemchep.essence.extensions.injectObserver
 import com.artemchep.essence.extensions.isActive
 import com.artemchep.essence.flow.ManualTimeFlow
+import com.artemchep.essence.flow.emitCurrentTime
 import com.artemchep.essence.ui.views.WatchFaceView
 import com.artemchep.liveflow.impl.MutableLiveFlowImpl
 import kotlinx.coroutines.*
@@ -110,7 +111,7 @@ open class WatchFaceService : CanvasWatchFaceService() {
                 Cfg,
                 weatherPort,
                 geolocationPort,
-                timeFlow.share(),
+                timeFlow,
                 ambientModeFlow.share(),
                 complicationsRawFlow.share()
             )
@@ -118,8 +119,10 @@ open class WatchFaceService : CanvasWatchFaceService() {
         }
 
         private fun WatchFaceViewModel.setup() {
-            watchFaceFlow.injectObserver(this@WatchFaceEngine) {
-                view.setDelta(it)
+            bindIn(watchFaceFlow) { deltas ->
+                deltas.forEach { d ->
+                    view.setDelta(d)
+                }
                 postInvalidate()
             }
         }

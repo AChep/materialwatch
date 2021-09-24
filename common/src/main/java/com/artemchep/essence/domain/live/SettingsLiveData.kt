@@ -1,6 +1,7 @@
 package com.artemchep.essence.domain.live
 
 import android.content.Context
+import androidx.appcompat.content.res.AppCompatResources
 import com.artemchep.config.Config
 import com.artemchep.essence.Cfg
 import com.artemchep.essence.domain.live.base.BaseLiveData
@@ -36,14 +37,14 @@ class SettingsLiveData(
         SETTINGS_ITEM_COMPLICATIONS to {
             ConfigItem(
                 id = SETTINGS_ITEM_COMPLICATIONS,
-                icon = context.getDrawable(R.drawable.ic_view),
+                icon = AppCompatResources.getDrawable(context, R.drawable.ic_view),
                 title = context.getString(R.string.config_complications)
             )
         },
         SETTINGS_ITEM_ABOUT to {
             ConfigItem(
                 id = SETTINGS_ITEM_ABOUT,
-                icon = context.getDrawable(R.drawable.ic_information_outline),
+                icon = AppCompatResources.getDrawable(context, R.drawable.ic_information_outline),
                 title = context.getString(R.string.config_about)
             )
         },
@@ -53,7 +54,7 @@ class SettingsLiveData(
 
             ConfigItem(
                 id = SETTINGS_ITEM_ACCENT,
-                icon = context.getDrawable(R.drawable.ic_palette),
+                icon = AppCompatResources.getDrawable(context, R.drawable.ic_palette),
                 title = context.getString(R.string.config_accent),
                 summary = accentColorName
             )
@@ -64,7 +65,7 @@ class SettingsLiveData(
 
             ConfigItem(
                 id = SETTINGS_ITEM_THEME,
-                icon = context.getDrawable(R.drawable.ic_invert_colors),
+                icon = AppCompatResources.getDrawable(context, R.drawable.ic_invert_colors),
                 title = context.getString(R.string.config_theme),
                 summary = themeName
             )

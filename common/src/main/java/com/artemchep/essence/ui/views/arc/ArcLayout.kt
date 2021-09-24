@@ -4,7 +4,10 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
+import android.os.SystemClock
 import android.util.AttributeSet
+import android.util.Log
+import android.view.View
 import android.widget.FrameLayout
 import com.artemchep.essence.ui.views.arc.impl.NaiveArcAlgorithm
 import com.artemchep.essence.ui.views.arc.impl.RsArcAlgorithm
@@ -18,6 +21,10 @@ class ArcLayout @kotlin.jvm.JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr) {
+
+    companion object {
+        private const val TAG = "ArcLayout"
+    }
 
     private var bitmapCache: Bitmap? = null
 
@@ -37,7 +44,13 @@ class ArcLayout @kotlin.jvm.JvmOverloads constructor(
     }
 
     override fun dispatchDraw(canvas: Canvas) {
-        val b = bitmapCache ?: run {
+        val beginTime = SystemClock.currentThreadTimeMillis()
+        val cache = bitmapCache
+            ?.takeIf { bitmap ->
+                bitmap.width == width &&
+                        bitmap.height == height
+            }
+        val b = cache ?: run {
             // Draw and bend the content
             // of a frame.
             val s = prepareSurface()
@@ -50,6 +63,12 @@ class ArcLayout @kotlin.jvm.JvmOverloads constructor(
         // Draw the resulting
         // bitmap
         canvas.drawBitmap(b, 0.0f, 0.0f, null)
+
+        val endTime = SystemClock.currentThreadTimeMillis()
+        val detail = " [from cache]".takeIf { cache != null }.orEmpty()
+        val message =
+            "Drawing an arc$detail took ${endTime - beginTime}ms."
+        Log.i(TAG, message)
     }
 
     private fun prepareSurface(): Surface {
@@ -67,7 +86,7 @@ class ArcLayout @kotlin.jvm.JvmOverloads constructor(
             }
     }
 
-    fun notifyChildrenChanged() {
+    fun clearBitmapCache() {
         bitmapCache = null
     }
 
@@ -81,6 +100,7 @@ class ArcLayout @kotlin.jvm.JvmOverloads constructor(
 
         val width: Int get() = bitmap.width
         val height: Int get() = bitmap.height
+
         /**
          * Recycles the bitmap of this
          * surface.

@@ -13,6 +13,7 @@
         android:usesCleartextTraffic="true">
         <activity
             android:name=".ui.activities.MainActivity"
+            android:exported="true"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -22,7 +23,20 @@
         </activity>
         <activity
             android:name=".ui.activities.PlaygroundActivity"
+            android:exported="false"
             android:theme="@style/AppTheme.NoActionBar" />
+
+        <receiver
+            android:name=".widget.WidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget" />
+        </receiver>
     </application>
 
 </manifest>
