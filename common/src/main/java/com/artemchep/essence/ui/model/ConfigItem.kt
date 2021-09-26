@@ -9,5 +9,6 @@ data class ConfigItem(
     val id: Int,
     var icon: Drawable? = null,
     val title: String,
-    var summary: String? = null
+    var summary: String? = null,
+    var checked: Boolean? = null,
 )

@@ -6,7 +6,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.artemchep.bindin.bindIn
-import com.artemchep.essence.R
+import com.artemchep.mw.R
 import com.artemchep.essence.domain.viewmodel.AboutViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 

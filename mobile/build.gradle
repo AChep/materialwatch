@@ -4,13 +4,11 @@ apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-kapt'
 
-apply plugin: 'com.google.firebase.crashlytics'
-
 android {
     compileSdkVersion sdk_target
 
     defaultConfig {
-        applicationId "com.artemchep.essence"
+        applicationId "com.artemchep.mw"
         minSdkVersion sdk_min
         targetSdkVersion sdk_target
         versionCode version_code * 1000000 + 1
@@ -23,14 +21,14 @@ android {
     signingConfigs {
         release {
             def releaseProps = new Properties()
-            def keystorePropertiesFile = file('essence-release.properties')
+            def keystorePropertiesFile = file('mw-release.properties')
             if (keystorePropertiesFile.exists()) {
                 keystorePropertiesFile.withReader('UTF-8') { reader ->
                     releaseProps.load(reader)
                 }
             }
 
-            storeFile file("essence-release.keystore")
+            storeFile file("mw-release.keystore")
             keyAlias releaseProps['key_alias']
             keyPassword releaseProps['password_key']
             storePassword releaseProps['password_store']
@@ -39,10 +37,8 @@ android {
 
     buildTypes {
         debug {
-            //applicationIdSuffix = ".debug"
+            applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
-
-            signingConfig signingConfigs.release
         }
         release {
             zipAlignEnabled true
@@ -74,8 +70,6 @@ dependencies {
 
     implementation "io.arrow-kt:arrow-optics:$arrow_version"
     implementation "io.arrow-kt:arrow-core:$arrow_version"
-    implementation 'com.google.firebase:firebase-crashlytics:18.1.0'
-    implementation 'com.google.firebase:firebase-analytics:19.0.0'
     kapt "io.arrow-kt:arrow-meta:$arrow_version"
 
     implementation "androidx.core:core-ktx:$ktx_lib_version"
@@ -90,11 +84,7 @@ dependencies {
     implementation "com.google.android.gms:play-services-wearable:17.1.0"
     compileOnly "com.google.android.wearable:wearable:$wearable_version"
 
-    implementation "com.google.firebase:firebase-analytics:$firebase_analytics_version"
-
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 }
-
-apply plugin: 'com.google.gms.google-services'

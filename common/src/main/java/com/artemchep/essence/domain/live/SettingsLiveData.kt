@@ -7,7 +7,7 @@ import com.artemchep.essence.Cfg
 import com.artemchep.essence.domain.live.base.BaseLiveData
 import com.artemchep.essence.domain.models.*
 import com.artemchep.essence.ui.model.ConfigItem
-import com.artemchep.essence_common.R
+import com.artemchep.mw_common.R
 
 /**
  * @author Artem Chepurnoy
@@ -48,6 +48,23 @@ class SettingsLiveData(
                 title = context.getString(R.string.config_about)
             )
         },
+        SETTINGS_ITEM_DIGITAL_CLOCK to {
+            val isChecked = Cfg.digitalClockEnabled
+            ConfigItem(
+                id = SETTINGS_ITEM_DIGITAL_CLOCK,
+                icon = AppCompatResources.getDrawable(context, R.drawable.ic_clock),
+                title = context.getString(R.string.config_digital_clock),
+                checked = isChecked,
+            )
+        },
+        SETTINGS_ITEM_ACCENT_TINT_BG to {
+            val isChecked = Cfg.accentBgEnabled
+            ConfigItem(
+                id = SETTINGS_ITEM_ACCENT_TINT_BG,
+                title = context.getString(R.string.config_accent_bg),
+                checked = isChecked,
+            )
+        },
         SETTINGS_ITEM_ACCENT to {
             val accentColor = Cfg.accentColor
             val accentColorName = accentColorNames[accentColor] ?: "Unknown accent color"
@@ -65,7 +82,7 @@ class SettingsLiveData(
 
             ConfigItem(
                 id = SETTINGS_ITEM_THEME,
-                icon = AppCompatResources.getDrawable(context, R.drawable.ic_invert_colors),
+                icon = AppCompatResources.getDrawable(context, R.drawable.ic_theme),
                 title = context.getString(R.string.config_theme),
                 summary = themeName
             )

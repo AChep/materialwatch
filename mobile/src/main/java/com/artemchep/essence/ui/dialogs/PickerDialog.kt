@@ -3,7 +3,7 @@ package com.artemchep.essence.ui.dialogs
 import android.app.Dialog
 import android.os.Bundle
 import androidx.fragment.app.DialogFragment
-import com.artemchep.essence.R
+import com.artemchep.mw.R
 import com.artemchep.essence.domain.models.PickerSource
 import com.artemchep.essence.ui.model.ConfigPickerItem
 import com.google.android.material.dialog.MaterialAlertDialogBuilder

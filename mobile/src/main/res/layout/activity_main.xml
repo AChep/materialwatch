@@ -41,7 +41,11 @@
                 android:elevation="12dp"
                 android:padding="4dp">
 
-                <include layout="@layout/watch_face" />
+                <View
+                    android:id="@+id/watchFace"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                </View>
             </FrameLayout>
 
         </FrameLayout>

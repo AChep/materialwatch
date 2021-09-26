@@ -5,7 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.artemchep.essence.R
+import com.artemchep.mw.R
 import com.artemchep.essence.ui.adapters.AdapterBase
 import com.artemchep.essence.ui.interfaces.OnItemClickListener
 

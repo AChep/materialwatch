@@ -10,7 +10,7 @@ import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.ColorUtils
 import androidx.core.widget.ImageViewCompat
-import com.artemchep.essence.R
+import com.artemchep.mw.R
 import com.artemchep.essence.ui.adapters.AdapterBase
 import com.artemchep.essence.ui.interfaces.OnItemClickListener
 import com.artemchep.essence.ui.model.ConfigPickerItem

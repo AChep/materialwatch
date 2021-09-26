@@ -11,8 +11,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.artemchep.bindin.bindIn
 import com.artemchep.essence.ACTION_PERMISSIONS_CHANGED
 import com.artemchep.essence.Cfg
-import com.artemchep.essence.R
-import com.artemchep.essence.databinding.ActivityConfigBinding
+import com.artemchep.mw.R
+import com.artemchep.mw.databinding.ActivityConfigBinding
 import com.artemchep.essence.domain.models.*
 import com.artemchep.essence.domain.viewmodel.SettingsViewModel
 import com.artemchep.essence.ui.adapter.MainAdapter
@@ -55,8 +55,10 @@ class MainActivity : ActivityBase(), OnItemClickListener<ConfigItem> {
 
         val itemIds = setOf(
             SETTINGS_ITEM_COMPLICATIONS,
+            SETTINGS_ITEM_DIGITAL_CLOCK,
             SETTINGS_ITEM_THEME,
             SETTINGS_ITEM_ACCENT,
+            SETTINGS_ITEM_ACCENT_TINT_BG,
             SETTINGS_ITEM_ABOUT
         )
         viewModel = kotlin.run {

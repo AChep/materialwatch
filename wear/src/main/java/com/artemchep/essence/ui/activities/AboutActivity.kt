@@ -5,9 +5,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import com.artemchep.bindin.bindIn
-import com.artemchep.essence.R
-import com.artemchep.essence.databinding.ActivityConfigAboutBinding
+import com.artemchep.mw.R
 import com.artemchep.essence.domain.viewmodel.AboutViewModel
+import com.artemchep.mw.databinding.ActivityConfigAboutBinding
 
 /**
  * @author Artem Chepurnoy

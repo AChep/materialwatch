@@ -7,8 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.wear.widget.WearableLinearLayoutManager
-import com.artemchep.essence.R
-import com.artemchep.essence.databinding.ActivityConfigBinding
+import com.artemchep.mw.R
+import com.artemchep.mw.databinding.ActivityConfigBinding
 import com.artemchep.essence.ui.adapter.PickerAdapter
 import com.artemchep.essence.ui.interfaces.OnItemClickListener
 import com.artemchep.essence.ui.model.ConfigPickerItem

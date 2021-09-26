@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.res.ResourcesCompat
-import com.artemchep.essence_common.R
+import com.artemchep.mw_common.R
 
 /**
  * @author Artem Chepurnoy

@@ -1,13 +1,12 @@
-# essence
-[![Build Status](https://travis-ci.org/AChep/essence.svg?branch=master)](https://travis-ci.org/AChep/essence)
+# materialwatch
 
 <img alt="Logo" align="right" height="360"
-   src="https://github.com/AChep/essence/raw/master/art/icon_512.png" />
+   src="https://github.com/AChep/materialwatch/raw/master/app-icon-512.png" />
 
-Simple watch face written for Android Wear 2 or higher.
+Simple watch face written for Wear OS 3 or higher.
 
-<a href="https://play.google.com/store/apps/details?id=com.artemchep.essence">
-  <img alt="Get essence on Google Play" vspace="20"
+<a href="https://play.google.com/store/apps/details?id=com.artemchep.mw">
+  <img alt="Get Material Watch on Google Play" vspace="20"
        src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png" height="80" />
 </a>
 
@@ -40,15 +39,15 @@ Build
 Clone the project and come in:
 
 ``` bash
-$ git clone git://github.com/AChep/essence.git
-$ cd essence/
+$ git clone git://github.com/AChep/materialwatch.git
+$ cd materialwatch/
 ```
 
-Repository doesn't include `wear/essence-release.properties`, `wear/essence-release.keystore` so you have to create them manually before building project.
+Repository doesn't include `wear/mw-release.properties`, `wear/mw-release.keystore` so you have to create them manually before building project.
 
-##### wear/essence-release.keystore
+##### wear/mw-release.keystore
 Check out this answer ["How can I create a keystore?"](http://stackoverflow.com/a/15330139/1408535)
-##### wear/essence-release.properties
+##### wear/mw-release.properties
 The structure of the file:
 ```
 key_alias=****
@@ -61,6 +60,6 @@ password_key=****
 | `password_store` | Your keystore password |
 | `password_key` | Your alias key password |
 
-[1]: https://github.com/AChep/essence/issues/new
-[2]: https://github.com/AChep/essence/issues?state=open
-[3]: https://github.com/AChep/essence/issues?state=closed
+[1]: https://github.com/AChep/materialwatch/issues/new
+[2]: https://github.com/AChep/materialwatch/issues?state=open
+[3]: https://github.com/AChep/materialwatch/issues?state=closed

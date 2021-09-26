@@ -5,7 +5,6 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-parcelize'
     id 'kotlin-kapt'
-    id 'kotlinx-serialization'
 }
 
 android {
@@ -54,7 +53,6 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     api "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlin_coroutines_version"
-    api "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization"
 
     implementation "io.arrow-kt:arrow-optics:$arrow_version"
     implementation "io.arrow-kt:arrow-core:$arrow_version"
@@ -67,11 +65,6 @@ dependencies {
     api "com.github.AChep:bindin:1.4.0"
     api "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
     api "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
-    implementation 'com.github.pwittchen:weathericonview:1.1.0'
-    implementation 'com.github.iamBedant:OutlineTextView:1.0.5'
-    implementation "com.github.kittinunf.fuel:fuel:$fuel_version"
-    implementation "com.github.kittinunf.fuel:fuel-coroutines:$fuel_version"
-    implementation "com.github.kittinunf.fuel:fuel-kotlinx-serialization:$fuel_version"
 
     implementation 'com.google.android.gms:play-services-location:18.0.0'
     implementation "com.google.android.material:material:$material_version"

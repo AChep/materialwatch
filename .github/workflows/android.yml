@@ -1,4 +1,4 @@
-name: Upload release assets
+name: Deploy releases
 
 on:
   push:
@@ -15,6 +15,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - name: generate changelog
+        id: changelog
+        uses: metcalfc/changelog-generator@v1.0.0
+        with:
+          myToken: ${{ secrets.GITHUB_TOKEN }}
       - name: "Setup JDK 11"
         id: setup-java
         uses: actions/setup-java@v2
@@ -26,28 +31,26 @@ jobs:
       - name: Copy secrets
         run: |
           cd mobile
-          echo '${{ secrets.GOOGLE_SERVICES }}' >> google-services.json
-          echo ${{ secrets.KEYSTORE_B64 }} | base64 -d | zcat >> essence-release.keystore
-          echo ${{ secrets.KEYSTORE_PROPS_B64 }} | base64 -d | zcat >> essence-release.properties
+          echo ${{ secrets.KEYSTORE_B64 }} | base64 -d | zcat >> mw-release.keystore
+          echo ${{ secrets.KEYSTORE_PROPS_B64 }} | base64 -d | zcat >> mw-release.properties
           cd ..
           cd wear
-          echo '${{ secrets.GOOGLE_SERVICES }}' >> google-services.json
-          echo ${{ secrets.KEYSTORE_B64 }} | base64 -d | zcat >> essence-release.keystore
-          echo ${{ secrets.KEYSTORE_PROPS_B64 }} | base64 -d | zcat >> essence-release.properties
+          echo ${{ secrets.KEYSTORE_B64 }} | base64 -d | zcat >> mw-release.keystore
+          echo ${{ secrets.KEYSTORE_PROPS_B64 }} | base64 -d | zcat >> mw-release.properties
           cd ..
-      - name: Build release version
+      - name: "./gradlew assemble"
+        uses: eskatos/gradle-command-action@v1
         env:
-          API_OPEN_WEATHER_MAP: ${{ secrets.API_OPEN_WEATHER_MAP }}
-          API_ACCU_WEATHER: ${{ secrets.API_ACCU_WEATHER }}
-          API_DARK_SKY: ${{ secrets.API_DARK_SKY }}
-          API_WEATHER_STACK: ${{ secrets.API_WEATHER_STACK }}
-        run: ./gradlew assembleRelease
+          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
+        with:
+          arguments: assembleRelease bundleRelease
       - name: Create release
         id: create_release
         uses: actions/create-release@v1
         with:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
+          body: ${{ steps.changelog.outputs.changelog }}
           draft: false
           prerelease: false
       - name: Upload release "mobile.apk"
@@ -55,12 +58,12 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: mobile/build/outputs/apk/release/mobile-release.apk
-          asset_name: essence-mobile-${{ steps.vars.outputs.tag }}.apk
+          asset_name: materiawatch-mobile-${{ steps.vars.outputs.tag }}.apk
           asset_content_type: application/zip
       - name: Upload release "wear.apk"
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: wear/build/outputs/apk/release/wear-release.apk
-          asset_name: essence-wear-${{ steps.vars.outputs.tag }}.apk
+          asset_name: materiawatch-wear-${{ steps.vars.outputs.tag }}.apk
           asset_content_type: application/zip

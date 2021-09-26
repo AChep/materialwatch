@@ -4,8 +4,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.Switch
 import android.widget.TextView
-import com.artemchep.essence.R
+import androidx.core.view.isGone
+import com.artemchep.mw.R
 import com.artemchep.essence.extensions.setTextExclusive
 import com.artemchep.essence.ui.adapters.AdapterBase
 import com.artemchep.essence.ui.interfaces.OnItemClickListener
@@ -35,6 +37,9 @@ open class MainAdapter(
                 titleTextView.text = model.title
                 summaryTextView.setTextExclusive(model.summary)
                 iconImageView.setImageDrawable(model.icon)
+                switchTextView.tag = model.checked == true
+                switchTextView.isChecked = model.checked == true
+                switchTextView.isGone = model.checked == null
             }
         }
 
@@ -51,6 +56,11 @@ open class MainAdapter(
         internal val iconImageView = view.findViewById<ImageView>(R.id.iconImageView)
         internal val titleTextView = view.findViewById<TextView>(R.id.titleTextView)
         internal val summaryTextView = view.findViewById<TextView>(R.id.summaryTextView)
+        internal val switchTextView = view.findViewById<Switch>(R.id.switchView).apply {
+            setOnCheckedChangeListener { v, isChecked ->
+                if (tag != isChecked) onClick(v)
+            }
+        }
 
         init {
             view.setOnClickListener(this)

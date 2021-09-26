@@ -1,6 +1,7 @@
 package com.artemchep.essence.ui.activities
 
-import android.annotation.SuppressLint
+import android.animation.TimeInterpolator
+import android.animation.ValueAnimator
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
@@ -16,31 +17,28 @@ import com.artemchep.bindin.bindIn
 import com.artemchep.config.Config
 import com.artemchep.essence.ACTION_PERMISSIONS_CHANGED
 import com.artemchep.essence.Cfg
-import com.artemchep.essence.R
-import com.artemchep.essence.databinding.ActivityMainBinding
-import com.artemchep.essence.domain.adapters.geolocation.GmsGeolocationPort
-import com.artemchep.essence.domain.adapters.weather.WeatherPort
-import com.artemchep.essence.domain.flow.flowOfTime
-import com.artemchep.essence.domain.models.OkScreen
-import com.artemchep.essence.domain.models.SETTINGS_ITEM_ACCENT
-import com.artemchep.essence.domain.models.SETTINGS_ITEM_THEME
-import com.artemchep.essence.domain.models.WatchFaceTheme
+import com.artemchep.essence.domain.models.*
+import com.artemchep.mw.R
+import com.artemchep.mw.databinding.ActivityMainBinding
 import com.artemchep.essence.domain.viewmodel.SettingsViewModel
-import com.artemchep.essence.domain.viewmodel.WatchFaceViewModel
 import com.artemchep.essence.flow.PreviewAmbientModeFlow
-import com.artemchep.essence.flow.PreviewComplicationRawFlow
+import com.artemchep.essence.flow.PreviewTimeFlow
 import com.artemchep.essence.sync.DataClientCfgAdapter
 import com.artemchep.essence.ui.adapters.MainAdapter
 import com.artemchep.essence.ui.dialogs.AboutDialog
 import com.artemchep.essence.ui.dialogs.PickerDialog
-import com.artemchep.essence.ui.drawables.CircleDrawable
+import com.artemchep.essence.ui.drawables.*
 import com.artemchep.essence.ui.interfaces.OnItemClickListener
 import com.artemchep.essence.ui.model.ConfigItem
-import com.artemchep.essence.ui.views.WatchFaceView
 import com.google.android.gms.wearable.DataClient
 import com.google.android.gms.wearable.Wearable
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlin.math.PI
+import kotlin.math.sin
 
 /**
  * @author Artem Chepurnoy
@@ -51,31 +49,17 @@ class MainActivity : ActivityBase(),
     View.OnClickListener,
     Config.OnConfigChangedListener<String> {
 
-    // ---- Ports ----
-
-    private val timeFlow by lazy { flowOfTime() }
-
-    private val ambientModeFlow = PreviewAmbientModeFlow()
-
-    private val complicationRawFlow = PreviewComplicationRawFlow()
-
-    private val weatherPort = WeatherPort()
-
-    private val geolocationPort by lazy { GmsGeolocationPort(this) }
-
     // ---- Setup ----
-
-    private lateinit var watchFaceView: WatchFaceView
 
     private lateinit var dataClient: DataClient
 
     private lateinit var adapter: MainAdapter
 
-    private lateinit var watchFaceViewModel: WatchFaceViewModel
-
     private lateinit var settingsViewModel: SettingsViewModel
 
     private val dataClientCfgAdapter by lazy { DataClientCfgAdapter(this) }
+
+    private val analogClockDrawable by lazy { AnalogClockDrawable(this) }
 
     private val binding by lazy {
         ActivityMainBinding
@@ -87,8 +71,6 @@ class MainActivity : ActivityBase(),
         setContentView(R.layout.activity_main)
 
         dataClient = Wearable.getDataClient(this)
-
-        watchFaceView = findViewById(R.id.watchFaceView) // do not remove :)
 
         setupView()
         setupRuntimePermissions()
@@ -102,61 +84,27 @@ class MainActivity : ActivityBase(),
             onItemClickListener = this@MainActivity
         }
 
+        binding.watchFace.background = ClipCircleDrawable(analogClockDrawable)
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(this@MainActivity)
             adapter = this@MainActivity.adapter
         }
 
-        setupWatchFaceViewModel()
         setupSettingsViewModel()
     }
 
-    private fun setupWatchFaceViewModel() {
-        val watchFaceViewModelFactory = WatchFaceViewModel.Factory(
-            application, Cfg,
-            weatherPort,
-            geolocationPort,
-            timeFlow,
-            ambientModeFlow,
-            complicationRawFlow
-        )
-        watchFaceViewModel = ViewModelProvider(this, watchFaceViewModelFactory)
-            .get(WatchFaceViewModel::class.java)
-        watchFaceViewModel.setup()
-    }
-
-    private fun WatchFaceViewModel.setup() {
-        bindIn(watchFaceFlow) { deltas ->
-            deltas.forEach { d ->
-                when (d) {
-                    is WatchFaceTheme -> {
-                        // Get the background color from a theme and set it
-                        // separately from a theme.
-                        val backgroundColor = d.value.backgroundColor
-                        watchFaceView.apply {
-                            // Set theme
-                            setTheme(d.value.copy(backgroundColor = Color.TRANSPARENT))
-                            // Set a background
-                            val bg = background as? CircleDrawable
-                                ?: CircleDrawable().also(::setBackground)
-                            bg.color = backgroundColor
-                        }
-
-                        // do not pass it to the watch face
-                        // view!
-                    }
-                    else -> watchFaceView.setDelta(d)
-                }
-            }
-        }
+    private fun invalidate() {
+        analogClockDrawable.invalidateSelf()
     }
 
     private fun setupSettingsViewModel() {
         val settingsViewModelFactory = SettingsViewModel.Factory(
             application, Cfg,
             setOf(
+                SETTINGS_ITEM_DIGITAL_CLOCK,
                 SETTINGS_ITEM_THEME,
-                SETTINGS_ITEM_ACCENT
+                SETTINGS_ITEM_ACCENT,
+                SETTINGS_ITEM_ACCENT_TINT_BG,
             )
         )
         settingsViewModel = ViewModelProvider(this, settingsViewModelFactory)
@@ -205,6 +153,22 @@ class MainActivity : ActivityBase(),
     override fun onStart() {
         super.onStart()
         dataClient.addListener(dataClientCfgAdapter)
+
+        val timeSink = PreviewTimeFlow()
+        val ambientSink = PreviewAmbientModeFlow()
+            .stateIn(this, SharingStarted.WhileSubscribed(), false)
+        analogClockDrawable.installCfgIn(this, ::invalidate)
+        analogClockDrawable.installTimeIn(
+            scope = this,
+            timeFlow = timeSink,
+            ambientFlow = ambientSink,
+            invalidate = ::invalidate,
+        )
+        analogClockDrawable.installAmbientIn(
+            scope = this,
+            ambientFlow = ambientSink,
+            invalidate = ::invalidate,
+        )
     }
 
     override fun onResume() {

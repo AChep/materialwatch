@@ -11,8 +11,8 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.artemchep.bindin.bindIn
-import com.artemchep.essence.R
-import com.artemchep.essence.databinding.ActivityConfigComplicationsBinding
+import com.artemchep.mw.R
+import com.artemchep.mw.databinding.ActivityConfigComplicationsBinding
 import com.artemchep.essence.domain.models.FailureScreen
 import com.artemchep.essence.domain.models.LoadingScreen
 import com.artemchep.essence.domain.models.OkScreen

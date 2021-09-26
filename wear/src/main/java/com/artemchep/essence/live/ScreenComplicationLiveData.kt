@@ -13,6 +13,7 @@ import com.artemchep.essence.domain.models.OkScreen
 import com.artemchep.essence.domain.models.Screen
 import com.artemchep.essence.service.WatchFaceService
 import com.artemchep.essence.ui.model.ConfigItem
+import com.artemchep.mw.R
 import kotlinx.coroutines.isActive
 import java.util.concurrent.Executors
 

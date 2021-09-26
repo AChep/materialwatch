@@ -2,7 +2,7 @@ package com.artemchep.essence.ui.activities
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.artemchep.essence.R
+import com.artemchep.mw.R
 
 /**
  * @author Artem Chepurnoy

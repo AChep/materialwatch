@@ -4,13 +4,26 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="../../../../../layout/custom_preview.xml" value="0.31302083333333336" />
-        <entry key="common/src/main/res/layout/watch_face.xml" value="1.0" />
+        <entry key="common/src/main/res/drawable/ic_clock.xml" value="0.138" />
+        <entry key="common/src/main/res/drawable/ic_foot.xml" value="0.1665" />
+        <entry key="common/src/main/res/drawable/ic_heart.xml" value="0.1665" />
+        <entry key="common/src/main/res/drawable/ic_mountain.xml" value="0.1665" />
+        <entry key="common/src/main/res/drawable/ic_palette.xml" value="0.1665" />
+        <entry key="common/src/main/res/drawable/ic_plus.xml" value="0.1665" />
+        <entry key="common/src/main/res/drawable/ic_run.xml" value="0.1665" />
+        <entry key="common/src/main/res/drawable/ic_theme.xml" value="0.1" />
+        <entry key="common/src/main/res/layout/watch_face.xml" value="0.1" />
+        <entry key="mobile/src/main/res/layout-land/activity_main.xml" value="0.1" />
+        <entry key="mobile/src/main/res/layout/activity_main.xml" value="0.4069767441860465" />
+        <entry key="mobile/src/main/res/layout/item_config.xml" value="0.12462006079027356" />
         <entry key="mobile/src/main/res/layout/widget.xml" value="0.182518115942029" />
+        <entry key="mobile/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.138" />
+        <entry key="mobile/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.138" />
         <entry key="wear/src/main/res/drawable/bg_card.xml" value="1.55" />
         <entry key="wear/src/main/res/layout/activity_config.xml" value="1.138157894736842" />
         <entry key="wear/src/main/res/layout/activity_config_about.xml" value="0.972027972027972" />
         <entry key="wear/src/main/res/layout/item_color.xml" value="1.138157894736842" />
-        <entry key="wear/src/main/res/layout/item_config.xml" value="0.8108552631578947" />
+        <entry key="wear/src/main/res/layout/item_config.xml" value="0.1079136690647482" />
       </map>
     </option>
   </component>

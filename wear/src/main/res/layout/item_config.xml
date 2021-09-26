@@ -39,7 +39,7 @@
             android:textColor="?android:textColorPrimary"
             android:textSize="16sp"
             app:layout_constraintBottom_toTopOf="@id/summaryTextView"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/switchView"
             app:layout_constraintStart_toEndOf="@id/iconImageView"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_chainStyle="packed"
@@ -53,11 +53,21 @@
             android:layout_marginEnd="8dp"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/switchView"
             app:layout_constraintStart_toEndOf="@id/iconImageView"
             app:layout_constraintTop_toBottomOf="@id/titleTextView"
             tools:text="Detailed information"
             tools:visibility="visible" />
+
+        <Switch
+            android:id="@+id/switchView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

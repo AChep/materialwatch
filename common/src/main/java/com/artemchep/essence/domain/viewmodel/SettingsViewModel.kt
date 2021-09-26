@@ -14,7 +14,7 @@ import com.artemchep.essence.domain.viewmodel.base.BaseViewModel
 import com.artemchep.essence.ui.*
 import com.artemchep.essence.ui.model.ConfigItem
 import com.artemchep.essence.ui.model.ConfigPickerItem
-import com.artemchep.essence_common.R
+import com.artemchep.mw_common.R
 
 /**
  * @author Artem Chepurnoy
@@ -36,6 +36,7 @@ class SettingsViewModel(
      * names.
      */
     private val paletteMap = mapOf(
+        PALETTE_MATERIAL_YOU to context.getString(R.string.material_you),
         PALETTE_RED to context.getString(R.string.red),
         PALETTE_PINK to context.getString(R.string.pink),
         PALETTE_PURPLE to context.getString(R.string.purple),
@@ -116,6 +117,16 @@ class SettingsViewModel(
             SETTINGS_ITEM_ABOUT -> {
                 val event = Event(item.id)
                 showDetailsEvent.postValue(event)
+            }
+            SETTINGS_ITEM_DIGITAL_CLOCK -> {
+                Cfg.edit(context) {
+                    Cfg.digitalClockEnabled = !Cfg.digitalClockEnabled
+                }
+            }
+            SETTINGS_ITEM_ACCENT_TINT_BG -> {
+                Cfg.edit(context) {
+                    Cfg.accentBgEnabled = !Cfg.accentBgEnabled
+                }
             }
             SETTINGS_ITEM_THEME -> {
                 val data = PickerSource(

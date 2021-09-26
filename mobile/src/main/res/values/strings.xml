@@ -1,7 +1,5 @@
 <resources>
 
-    <string name="app_name">Essence</string>
-
     <string name="action_close">Close</string>
     <string name="action_about">About</string>
 

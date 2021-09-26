@@ -5,8 +5,8 @@ import android.content.pm.PackageManager
 import androidx.core.text.parseAsHtml
 import com.artemchep.essence.domain.viewmodel.base.BaseViewModel
 import com.artemchep.essence.messageChannel
-import com.artemchep.essence_common.BuildConfig
-import com.artemchep.essence_common.R
+import com.artemchep.mw_common.BuildConfig
+import com.artemchep.mw_common.R
 import kotlinx.coroutines.flow.MutableStateFlow
 
 /**
