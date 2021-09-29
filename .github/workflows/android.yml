@@ -39,7 +39,7 @@ jobs:
           echo ${{ secrets.KEYSTORE_PROPS_B64 }} | base64 -d | zcat >> mw-release.properties
           cd ..
       - name: "./gradlew assemble"
-        uses: eskatos/gradle-command-action@v1
+        uses: eskatos/gradle-command-action@v2
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
