@@ -11,4 +11,5 @@ data class ConfigItem(
     val title: String,
     var summary: String? = null,
     var checked: Boolean? = null,
+    var button: Drawable? = null,
 )

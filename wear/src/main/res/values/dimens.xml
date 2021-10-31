@@ -12,6 +12,6 @@
     <dimen name="watchface_end_padding">10dp</dimen>
 
     <!-- the size of the watch face's complications icons -->
-    <dimen name="watch_face_icon_size">20dp</dimen>
+    <dimen name="watch_face_icon_size">16dp</dimen>
 
 </resources>

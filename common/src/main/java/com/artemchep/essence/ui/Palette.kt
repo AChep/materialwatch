@@ -3,6 +3,8 @@ package com.artemchep.essence.ui
 import androidx.annotation.ColorInt
 
 @ColorInt
+const val PALETTE_TRANSPARENT = 0x00000000
+@ColorInt
 const val PALETTE_MATERIAL_YOU = 0xFF7576dd.toInt()
 @ColorInt
 const val PALETTE_RED = -0xbbcca

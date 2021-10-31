@@ -23,10 +23,10 @@
             android:layout_height="40dp"
             android:layout_marginStart="8dp"
             android:padding="8dp"
-            android:tint="?android:textColorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:tint="?android:textColorPrimary"
             tools:ignore="ContentDescription"
             tools:src="@drawable/ic_information_outline" />
 
@@ -66,8 +66,22 @@
             android:layout_marginEnd="8dp"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/iconButtonView"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/iconButtonView"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="8dp"
+            android:padding="8dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="?android:textColorPrimary"
+            tools:ignore="ContentDescription"
+            tools:src="@drawable/ic_tune" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

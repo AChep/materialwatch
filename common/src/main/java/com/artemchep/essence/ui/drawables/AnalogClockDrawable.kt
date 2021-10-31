@@ -13,7 +13,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.withRotation
 import androidx.core.graphics.withTranslation
 import com.artemchep.essence.*
-import com.artemchep.essence.domain.models.Complication
+import com.artemchep.essence.domain.models.Complication2
 import com.artemchep.essence.domain.models.Theme
 import com.artemchep.essence.domain.models.Time
 import com.artemchep.essence.ui.util.blend
@@ -21,7 +21,6 @@ import com.artemchep.essence.ui.util.blendColor
 import com.artemchep.mw_common.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
-import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.PI
 import kotlin.math.min
@@ -40,10 +39,11 @@ class AnalogClockDrawable(
         private const val HAND_HOUR_MAX_FACTOR = 0.60f
     }
 
-    var complicationDataSparse: SparseArray<Complication>? = null
+    var complicationDataSparse: SparseArray<Complication2>? = null
 
     var time: String = "10:20"
-    var date: String = "Tue, 24 Sep"
+    var timeH: String = "10:20"
+    var timeM: String = "10:20"
 
     var timeEnabled: Boolean = true
 
@@ -85,9 +85,17 @@ class AnalogClockDrawable(
             style = Paint.Style.STROKE
         }
 
+    private val handSubPaint = Paint()
+        .apply {
+            isAntiAlias = true
+            strokeCap = Paint.Cap.ROUND
+            style = Paint.Style.STROKE
+        }
+
     private val tickPaint = Paint()
         .apply {
             isAntiAlias = true
+            style = Paint.Style.FILL
             color = Color.WHITE
         }
 
@@ -111,19 +119,18 @@ class AnalogClockDrawable(
     override fun draw(canvas: Canvas) = canvas.performDraw()
 
     private fun Canvas.performDraw() {
-        drawColor(
-            blendColor(
-                ratio = ambience,
-                // Transition from background color to black color
-                // in ambient mode.
-                a = backgroundAmbientColor,
-                b = if (backgroundTintEnabled) {
-                    blendColor(0.15f, backgroundColor, accentColor)
-                } else {
-                    backgroundColor
-                },
-            )
+        val surfaceColor = blendColor(
+            ratio = ambience,
+            // Transition from background color to black color
+            // in ambient mode.
+            a = backgroundAmbientColor,
+            b = if (backgroundTintEnabled) {
+                blendColor(0.15f, backgroundColor, accentColor)
+            } else {
+                backgroundColor
+            },
         )
+        drawColor(surfaceColor)
 
         val centerX = bounds.exactCenterX() + bounds.left
         val centerY = bounds.exactCenterY() + bounds.top
@@ -133,7 +140,7 @@ class AnalogClockDrawable(
         )
 
         // Draw tick marks
-        tickPaint.alpha = blend(ambience, 220f, 80f).toInt()
+        tickPaint.alpha = blend(ambience, 255f, 80f).toInt()
         for (i in 0 until 12) {
             withRotation(
                 degrees = 360f / 12f * i,
@@ -141,13 +148,11 @@ class AnalogClockDrawable(
                 pivotY = centerY,
             ) {
                 val length = blend(ambience, radius / 24f, 0f)
-                if (length > 0f)
+                if (length > 0f) {
                     drawLine(centerX, 0f, centerX, length, tickPaint)
+                }
             }
         }
-
-        handPaint.color = accentColor
-        handPaint.strokeWidth = radius / blend(ambience, 8f, 6f)
 
         val strokeWidth = radius / 6f
         val hourHandLengthMax = (radius - strokeWidth) * HAND_HOUR_MAX_FACTOR
@@ -179,45 +184,44 @@ class AnalogClockDrawable(
             clockPaint.alpha = (55 * ambience).toInt()
             drawTextOnPath(time, path, 0f, 0f, clockPaint)
         }
+        clockPaint.textAlign = Paint.Align.CENTER
+        clockPaint.alpha = 220
+        drawText(timeH, centerX * 1.6f, centerY, clockPaint)
+        clockPaint.alpha = 150
+        drawText(timeM, centerX * 1.6f, centerY + clockPaint.textSize, clockPaint)
+
+        handPaint.color = accentColor
+        handPaint.strokeWidth = radius / blend(ambience, 8f, 5f)
+        handSubPaint.color = surfaceColor
+        handSubPaint.strokeWidth = blend(ambience, radius / 14f, 0f)
 
         // Draw hour hand
-        handPaint.alpha = 125
+        handPaint.alpha = 115
         drawClockHand(hourHandRotation, centerX, centerY, hourHandLength, handPaint)
+        if (ambience < 1f)
+            drawClockHand(hourHandRotation, centerX, centerY, hourHandLength / 1.5f, handSubPaint)
 
         // Draw minute hand
         handPaint.alpha = 255
         drawClockHand(minuteHandRotation, centerX, centerY, minuteHandLength, handPaint)
+        if (ambience < 1f)
+            drawClockHand(minuteHandRotation, centerX, centerY, hourHandLength / 1.5f, handSubPaint)
 
         textPaint.textAlign = Paint.Align.CENTER
         textPaint.textSize = (radius - minuteHandLengthMin) / 3.1f
 
         val textArcRadius = blend(ambience, radius * 1.1f, radius)
-        drawArc(
-            rotation = 315f,
-            centerX = centerX,
-            centerY = centerY,
-            radius = radius,
-            length = textArcRadius,
-            text = date,
-        )
-
-        var rotation = 270f
         WATCH_COMPLICATIONS.forEachIndexed { index, complicationId ->
             val value = complicationDataSparse?.get(complicationId)
-            if (value == null || value.shortMsg.isNullOrEmpty()) return@forEachIndexed
-            when (complicationId) {
-                WATCH_COMPLICATION_THIRD -> value.normalIconDrawable?.setTint(Color.CYAN)
-                WATCH_COMPLICATION_FOURTH -> value.normalIconDrawable?.setTint(Color.RED)
-                WATCH_COMPLICATION_FIFTH -> value.normalIconDrawable?.setTint(Color.YELLOW)
-            }
+                ?: return@forEachIndexed
             drawArc(
-                rotation = rotation - 45f * index,
+                rotation = 340f - 60f * index,
                 centerX = centerX,
                 centerY = centerY,
                 radius = radius,
                 length = textArcRadius,
-                icon = value.normalIconDrawable,
-                text = value.shortMsg!!.toString(),
+                icon = value.icon,
+                text = value.text?.toString().orEmpty(),
             )
         }
     }
@@ -255,30 +259,31 @@ class AnalogClockDrawable(
         ) {
             if (icon != null)
                 withRotation(
-                    degrees = 90f + (if (direction == Path.Direction.CW) -1f else 1f) * 6f,
+                    degrees = 90f + 6f,
                     pivotX = centerX,
                     pivotY = centerY,
                 ) {
                     val bounds = icon.bounds
                     withTranslation(
                         x = centerX - bounds.width() / 2f,
-                        y = radius - length + textPaint.fontMetrics.descent,
+                        y = radius - length + textPaint.fontMetrics.leading,
                     ) {
                         withRotation(
-                            degrees = (if (direction == Path.Direction.CCW) -1f else 1f) * 180f,
+                            degrees = (if (direction == Path.Direction.CW) 0f else 1f) * 180f,
                             pivotX = bounds.width() / 2f,
                             pivotY = bounds.height() / 2f
                         ) {
-                            icon.alpha = (200 * animation).toInt()
+                            icon.alpha = (255f * animation).toInt()
                             icon.draw(this)
                         }
                     }
                 }
 
-            textPaint.textAlign = Paint.Align.LEFT
+            textPaint.textAlign =
+                if (direction == Path.Direction.CW) Paint.Align.RIGHT else Paint.Align.LEFT
             val path = Path().apply {
                 val offsetY = if (direction == Path.Direction.CW) {
-                    textPaint.fontMetrics.top
+                    textPaint.fontMetrics.top * 1.2f
                 } else {
                     -textPaint.fontMetrics.bottom - textPaint.fontMetrics.leading
                 }
@@ -289,7 +294,7 @@ class AnalogClockDrawable(
                     direction
                 )
             }
-            textPaint.alpha = (255 * animation).toInt()
+            textPaint.alpha = (255f * animation).toInt()
             drawTextOnPath(text.orEmpty(), path, 0f, 0f, textPaint)
         }
     }
@@ -343,6 +348,7 @@ fun AnalogClockDrawable.installCfgIn(scope: CoroutineScope, invalidate: () -> Un
         }
         .launchIn(scope)
 }
+
 fun AnalogClockDrawable.installAmbientIn(
     scope: CoroutineScope,
     ambientFlow: Flow<Boolean>,
@@ -379,7 +385,6 @@ fun AnalogClockDrawable.installTimeIn(
     ambientFlow: StateFlow<Boolean>,
     invalidate: () -> Unit,
 ) {
-    val dateFormat = SimpleDateFormat("EEE, MMM d")
     var animator: Animator? = null
     timeFlow
         .onEach { t ->
@@ -393,7 +398,16 @@ fun AnalogClockDrawable.installTimeIn(
                 context = context,
                 calendar = calendar,
             )
-            this.date = dateFormat.format(date)
+            this.timeH = formatTwoDigitNumber(
+                if (is24HourFormat(context)) {
+                    calendar.get(Calendar.HOUR_OF_DAY)
+                } else {
+                    calendar.get(Calendar.HOUR)
+                        .takeIf { it != 0 }
+                        ?: 12
+                }
+            )
+            this.timeM = formatTwoDigitNumber(calendar.get(Calendar.MINUTE))
 
             // Update analog clock
             animator?.cancel()

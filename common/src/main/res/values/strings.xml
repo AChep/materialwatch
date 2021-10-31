@@ -4,6 +4,9 @@
 
     <string name="config">Config</string>
     <string name="config_complications">Complications</string>
+    <string name="config_complications_editor">Complication configuration</string>
+    <string name="config_complications_editor_icon_enabled">Icon visible</string>
+    <string name="config_complications_editor_icon_color">Icon color</string>
     <string name="config_complication_first_line">First line</string>
     <string name="config_complication_second_line">Second line</string>
     <string name="config_complication_third_line">Third line</string>
@@ -36,6 +39,7 @@
     <string name="grayscale_off">Off</string>
 
     <string name="material_you">Material you</string>
+    <string name="none">None</string>
     <string name="red">Red</string>
     <string name="pink">Pink</string>
     <string name="purple">Purple</string>
