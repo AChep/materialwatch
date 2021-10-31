@@ -54,6 +54,7 @@ class PickerActivity : ActivityBase(), OnItemClickListener<ConfigPickerItem> {
             .getParcelableArrayListExtra<ConfigPickerItem>(EXTRA_ITEMS)!!
             .toMutableList()
         adapter = PickerAdapter(items, title).apply {
+            selectedKey = intent!!.getStringExtra(EXTRA_KEY)
             onItemClickListener = this@PickerActivity
         }
 

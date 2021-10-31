@@ -5,14 +5,19 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.Icon
+import android.os.Build
 import android.support.wearable.complications.ComplicationData
 import android.support.wearable.watchface.CanvasWatchFaceService
 import android.support.wearable.watchface.WatchFaceStyle
 import android.util.SparseArray
 import android.view.SurfaceHolder
+import androidx.core.util.forEach
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
+import arrow.core.memoize
+import com.artemchep.essence.Cfg
 import com.artemchep.essence.WATCH_COMPLICATIONS
 import com.artemchep.essence.domain.models.*
 import com.artemchep.essence.extensions.getLongMessage
@@ -22,8 +27,10 @@ import com.artemchep.essence.ui.drawables.AnalogClockDrawable
 import com.artemchep.essence.ui.drawables.installAmbientIn
 import com.artemchep.essence.ui.drawables.installCfgIn
 import com.artemchep.essence.ui.drawables.installTimeIn
+import com.artemchep.mw.R
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.channels.actor
+import kotlinx.coroutines.flow.*
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -45,10 +52,46 @@ open class WatchFaceService : CanvasWatchFaceService() {
      */
     open inner class WatchFaceEngine : LifecycleAwareWatchFaceEngine() {
 
-        /** Maps complication ids to corresponding complications data */
-        private val complicationDataSparse = SparseArray<Complication>()
+        private val complicationSink = MutableStateFlow(SparseArray<ComplicationDataBuilder>())
+
+        private fun <T> MutableStateFlow<SparseArray<T>>.updateClone(
+            block: SparseArray<T>.() -> Unit,
+        ) = update { sparseArray ->
+            sparseArray.clone().apply(block)
+        }
 
         private val timeSink = MutableStateFlow(currentTime)
+
+        private val cFlow = combine(
+            complicationSink,
+            timeSink,
+            Cfg.asFlowOfProperty<String>(Cfg.KEY_THEME),
+            Cfg.asFlowOfProperty<ComplicationEditor>(Cfg.KEY_COMPLICATION_EDITOR),
+        ) { complications, time, themeName, config ->
+            val theme = when (themeName) {
+                Cfg.THEME_BLACK -> Theme.BLACK
+                Cfg.THEME_DARK -> Theme.DARK
+                Cfg.THEME_LIGHT -> Theme.LIGHT
+                else -> Theme.BLACK
+            }
+
+            val sparse = SparseArray<Complication2>()
+            complications.forEach { key, value ->
+                val item = config.getOrCreate(key)
+                    .run {
+                        if (iconColor == null) {
+                            copy(iconColor = theme.contentColor)
+                        } else this
+                    }
+                sparse.put(
+                    key, value.build(
+                        config = item,
+                        time = time,
+                    )
+                )
+            }
+            sparse
+        }.flowOn(Dispatchers.Default)
 
         private val ambientSink = MutableStateFlow(isInAmbientMode)
 
@@ -77,6 +120,15 @@ open class WatchFaceService : CanvasWatchFaceService() {
                 ambientFlow = ambientSink,
                 invalidate = ::invalidate,
             )
+
+            cFlow
+                .onEach {
+                    analogClockDrawable.complicationDataSparse = it
+                    if (!isInAmbientMode)
+                        invalidate()
+                }
+                .flowOn(Dispatchers.Main)
+                .launchIn(this)
         }
 
         override fun onTimeTick() {
@@ -94,27 +146,26 @@ open class WatchFaceService : CanvasWatchFaceService() {
             data: ComplicationData?
         ) {
             super.onComplicationDataUpdate(watchFaceComplicationId, data)
-            if (data == null
-                || (data.shortText == null && data.shortTitle == null
-                        && data.longText == null && data.longTitle == null)
-            ) {
-                complicationDataSparse.remove(watchFaceComplicationId)
-            } else {
-                val normalIcon = data.icon?.loadDrawable(context)?.apply {
-                    val size = (16 * context.resources.displayMetrics.density).toInt()
-                    setBounds(0, 0, size, size)
-                    setTint(Color.CYAN)
+            if (data == null) {
+                complicationSink.updateClone {
+                    remove(watchFaceComplicationId)
                 }
-                val adapter = ComplicationDataAdapter(normalIcon, data)
-                    .invoke(
-                        this@WatchFaceService,
-                        currentTime,
+            } else {
+                complicationSink.updateClone {
+                    get(watchFaceComplicationId)
+                        ?.apply {
+                            source = data
+                            return@updateClone
+                        }
+                    // otherwise create a new builder
+                    val builder = ComplicationDataBuilder(
+                        context = context,
+                        id = watchFaceComplicationId,
+                        source = data,
                     )
-                complicationDataSparse.put(watchFaceComplicationId, adapter)
+                    put(watchFaceComplicationId, builder)
+                }
             }
-
-            analogClockDrawable.complicationDataSparse = complicationDataSparse.clone()
-            invalidate()
         }
 
         override fun onSurfaceChanged(
@@ -193,4 +244,55 @@ open class WatchFaceService : CanvasWatchFaceService() {
         }
     }
 
+}
+
+private data class ComplicationDataBuilder(
+    val context: Context,
+    val id: Int,
+    var source: ComplicationData,
+) {
+    private val loadMemoizedIcon = memoizeLast<Icon?, Drawable?> { icon ->
+        icon?.loadDrawable()
+            ?.apply {
+                val size = context.resources.getDimensionPixelSize(R.dimen.watch_face_icon_size)
+                setBounds(0, 0, size, size)
+            }
+    }
+
+    private fun Icon.loadDrawable() = loadDrawable(context)
+
+    fun build(
+        config: ComplicationEditor.Item,
+        time: Time,
+    ): Complication2 {
+        val iconEnabled = config.iconEnabled ?: ComplicationEditor.Item.defaultIconEnabled
+        val icon = source.icon
+            .takeIf { iconEnabled }
+            .let(loadMemoizedIcon)
+            ?.apply {
+                setTint(config.iconColor ?: Color.BLUE)
+            }
+        return Complication2(
+            id = id,
+            action = source.tapAction,
+            icon = icon,
+            text = source.getShortMessage(context, time),
+        )
+    }
+}
+
+private fun <T, R> memoizeLast(
+    distinct: (T, T) -> Boolean = { a, b -> a == b },
+    block: (T) -> R
+): (T) -> R {
+    val noneValue = Any()
+    var lastValue: Any? = noneValue
+    var lastResult: Any? = null
+    return { value ->
+        if (lastValue === noneValue || !distinct(lastValue as T, value)) {
+            lastResult = block(value)
+            lastValue = value
+        }
+        lastResult as R
+    }
 }

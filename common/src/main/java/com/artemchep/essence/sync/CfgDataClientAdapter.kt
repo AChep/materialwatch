@@ -28,13 +28,8 @@ class CfgDataClientAdapter(private val context: Context) : Config.OnConfigChange
             .asPutDataRequest()
             .setUrgent()
         val task = dataClient.putDataItem(dataItem)
-        task.addOnCompleteListener { task ->
-            val message = if (task.isSuccessful) {
-                "Sync completed"
-            } else {
-                "Sync failed"
-            }
-            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        task.addOnCompleteListener {
+            // Do nothing.
         }
     }
 }

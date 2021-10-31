@@ -1,13 +1,13 @@
 package com.artemchep.essence.ui.activities
 
 import android.content.ComponentName
+import android.content.Intent
 import android.os.Bundle
 import android.support.wearable.complications.ComplicationData
 import android.support.wearable.complications.ComplicationHelperActivity
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.artemchep.bindin.bindIn
@@ -79,14 +79,22 @@ class ComplicationsActivity : ActivityBase(), OnItemClickListener<ConfigItem> {
                 }
             }
         }
+        bindIn(showEditorForComplicationEvent) {
+            val watchFaceComplicationId = it.consume()
+            if (watchFaceComplicationId != null) {
+                val intent = ComplicationEditorActivity.newIntent(
+                    this@ComplicationsActivity,
+                    watchFaceComplicationId
+                )
+                startActivity(intent)
+            }
+        }
         bindIn(showProviderForComplicationEvent) {
             val watchFaceComplicationId = it.consume()
             if (watchFaceComplicationId != null) {
                 val supportedTypes = intArrayOf(
-                    ComplicationData.TYPE_RANGED_VALUE,
-                    ComplicationData.TYPE_ICON,
+                    ComplicationData.TYPE_EMPTY,
                     ComplicationData.TYPE_SHORT_TEXT,
-                    ComplicationData.TYPE_SMALL_IMAGE
                 )
 
                 val watchFace =
@@ -103,7 +111,11 @@ class ComplicationsActivity : ActivityBase(), OnItemClickListener<ConfigItem> {
     }
 
     override fun onItemClick(view: View, model: ConfigItem) {
-        viewModel.showProviderForComplication(model)
+        val type = view.getTag(R.id.view_type)
+        when (type) {
+            MainAdapter.Tag.BUTTON -> viewModel.showEditorForComplication(model)
+            else -> viewModel.showProviderForComplication(model)
+        }
     }
 
 }

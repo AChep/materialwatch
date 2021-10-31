@@ -16,8 +16,15 @@ class ComplicationViewModel(application: Application) : BaseViewModel(applicatio
 
     val showProviderForComplicationEvent = MutableLiveData<Event<Int>>()
 
+    val showEditorForComplicationEvent = MutableLiveData<Event<Int>>()
+
     fun updateComplications() {
         screenLiveData.updateComplications()
+    }
+
+    fun showEditorForComplication(item: ConfigItem) {
+        val event = Event(item.id)
+        showEditorForComplicationEvent.postValue(event)
     }
 
     fun showProviderForComplication(item: ConfigItem) {

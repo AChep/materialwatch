@@ -5,6 +5,8 @@ import android.content.Context
 import android.support.wearable.complications.ComplicationProviderInfo
 import android.support.wearable.complications.ProviderInfoRetriever
 import android.util.SparseBooleanArray
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import com.artemchep.essence.*
 import com.artemchep.essence.domain.live.base.BaseLiveData
 import com.artemchep.essence.domain.models.FailureScreen
@@ -28,7 +30,9 @@ class ScreenComplicationsLiveData(
 
     private lateinit var providerInfoRetriever: ProviderInfoRetriever
 
-    private val emptyModelIcon = context.getDrawable(R.drawable.ic_plus)
+    private val emptyModelIcon = ContextCompat.getDrawable(context, R.drawable.ic_plus)
+
+    private val configureModelIcon = ContextCompat.getDrawable(context, R.drawable.ic_tune)
 
     private val models = mutableListOf(
         ConfigItem(
@@ -100,6 +104,7 @@ class ScreenComplicationsLiveData(
                         val index = models.indexOfFirst { it.id == watchFaceComplicationId }
                         models[index].apply {
                             icon = info?.providerIcon?.loadDrawable(context) ?: emptyModelIcon
+                            button = info?.let { configureModelIcon }
                             summary = info?.providerName
                         }
                     }
@@ -113,6 +118,7 @@ class ScreenComplicationsLiveData(
 
                     models.forEach {
                         it.icon = emptyModelIcon
+                        it.button = null
                         it.summary = null
                     }
 

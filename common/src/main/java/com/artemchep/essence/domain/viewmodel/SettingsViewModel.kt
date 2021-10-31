@@ -1,6 +1,7 @@
 package com.artemchep.essence.domain.viewmodel
 
 import android.app.Application
+import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
@@ -15,6 +16,42 @@ import com.artemchep.essence.ui.*
 import com.artemchep.essence.ui.model.ConfigItem
 import com.artemchep.essence.ui.model.ConfigPickerItem
 import com.artemchep.mw_common.R
+
+/**
+ * Map of the palette and its
+ * names.
+ */
+fun paletteMap(context: Context) = mapOf(
+    PALETTE_MATERIAL_YOU to context.getString(R.string.material_you),
+    PALETTE_RED to context.getString(R.string.red),
+    PALETTE_PINK to context.getString(R.string.pink),
+    PALETTE_PURPLE to context.getString(R.string.purple),
+    PALETTE_DEEP_PURPLE to context.getString(R.string.deep_purple),
+    PALETTE_INDIGO to context.getString(R.string.indigo),
+    PALETTE_BLUE to context.getString(R.string.blue),
+    PALETTE_CYAN to context.getString(R.string.cyan),
+    PALETTE_TEAL to context.getString(R.string.teal),
+    PALETTE_GREEN to context.getString(R.string.green),
+    PALETTE_LIGHT_GREEN to context.getString(R.string.light_green),
+    PALETTE_LIME to context.getString(R.string.lime),
+    PALETTE_YELLOW to context.getString(R.string.yellow),
+    PALETTE_AMBER to context.getString(R.string.amber),
+    PALETTE_ORANGE to context.getString(R.string.orange),
+    PALETTE_DEEP_ORANGE to context.getString(R.string.deep_orange),
+    PALETTE_BROWN to context.getString(R.string.brown),
+    PALETTE_GREY to context.getString(R.string.grey),
+    PALETTE_WHITE to context.getString(R.string.white)
+)
+
+/**
+ * Map of the themes and its
+ * names
+ */
+fun themeMap(context: Context) = mapOf(
+    Cfg.THEME_BLACK to context.getString(R.string.theme_black),
+    Cfg.THEME_DARK to context.getString(R.string.theme_dark),
+    Cfg.THEME_LIGHT to context.getString(R.string.theme_light)
+)
 
 /**
  * @author Artem Chepurnoy
@@ -35,37 +72,13 @@ class SettingsViewModel(
      * Map of the palette and its
      * names.
      */
-    private val paletteMap = mapOf(
-        PALETTE_MATERIAL_YOU to context.getString(R.string.material_you),
-        PALETTE_RED to context.getString(R.string.red),
-        PALETTE_PINK to context.getString(R.string.pink),
-        PALETTE_PURPLE to context.getString(R.string.purple),
-        PALETTE_DEEP_PURPLE to context.getString(R.string.deep_purple),
-        PALETTE_INDIGO to context.getString(R.string.indigo),
-        PALETTE_BLUE to context.getString(R.string.blue),
-        PALETTE_CYAN to context.getString(R.string.cyan),
-        PALETTE_TEAL to context.getString(R.string.teal),
-        PALETTE_GREEN to context.getString(R.string.green),
-        PALETTE_LIGHT_GREEN to context.getString(R.string.light_green),
-        PALETTE_LIME to context.getString(R.string.lime),
-        PALETTE_YELLOW to context.getString(R.string.yellow),
-        PALETTE_AMBER to context.getString(R.string.amber),
-        PALETTE_ORANGE to context.getString(R.string.orange),
-        PALETTE_DEEP_ORANGE to context.getString(R.string.deep_orange),
-        PALETTE_BROWN to context.getString(R.string.brown),
-        PALETTE_GREY to context.getString(R.string.grey),
-        PALETTE_WHITE to context.getString(R.string.white)
-    )
+    private val paletteMap = paletteMap(context)
 
     /**
      * Map of the themes and its
      * names
      */
-    private val themeMap = mapOf(
-        Cfg.THEME_BLACK to context.getString(R.string.theme_black),
-        Cfg.THEME_DARK to context.getString(R.string.theme_dark),
-        Cfg.THEME_LIGHT to context.getString(R.string.theme_light)
-    )
+    private val themeMap = themeMap(context)
 
     val screenLiveData = SettingsLiveData(
         context,

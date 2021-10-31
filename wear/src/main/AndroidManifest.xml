@@ -37,6 +37,7 @@
 
         <activity android:name="com.artemchep.essence.ui.activities.AboutActivity"  android:exported="false"/>
         <activity android:name="com.artemchep.essence.ui.activities.ComplicationsActivity"  android:exported="false"/>
+        <activity android:name="com.artemchep.essence.ui.activities.ComplicationEditorActivity"  android:exported="false"/>
         <activity android:name="com.artemchep.essence.ui.activities.PickerActivity" android:exported="false" />
 
         <meta-data
