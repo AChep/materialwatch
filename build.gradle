@@ -20,7 +20,7 @@ buildscript {
     ext.lifecycle_version = "2.2.0"
     ext.arrow_version = "1.0.0"
     // https://mvnrepository.com/artifact/com.google.android.material/material
-    ext.material_version = "1.5.0-alpha03"
+    ext.material_version = "1.5.0-alpha05"
 
     ext.firebase_analytics_version = "19.0.0"
     ext.firebase_crashlytics_version = "2.10.1"
@@ -32,7 +32,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.1'
+        classpath 'com.android.tools.build:gradle:7.0.3'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
         classpath 'com.google.gms:google-services:4.3.10'
