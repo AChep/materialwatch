@@ -41,9 +41,8 @@ class AnalogClockDrawable(
 
     var complicationDataSparse: SparseArray<Complication2>? = null
 
-    var time: String = "10:20"
-    var timeH: String = "10:20"
-    var timeM: String = "10:20"
+    var hours: String = "00"
+    var minutes: String = "00"
 
     var timeEnabled: Boolean = true
 
@@ -140,16 +139,24 @@ class AnalogClockDrawable(
         )
 
         // Draw tick marks
-        tickPaint.alpha = blend(ambience, 255f, 80f).toInt()
-        for (i in 0 until 12) {
+        for (i in 0 until 60) {
             withRotation(
-                degrees = 360f / 12f * i,
+                degrees = 360f / 60f * i,
                 pivotX = centerX,
                 pivotY = centerY,
             ) {
-                val length = blend(ambience, radius / 24f, 0f)
-                if (length > 0f) {
-                    drawLine(centerX, 0f, centerX, length, tickPaint)
+                if (i.rem(5) == 0) {
+                    tickPaint.alpha = 255
+                    val length = blend(ambience, radius / 28f, 0f)
+                    if (length > 0f) {
+                        drawLine(centerX, 0f, centerX, length, tickPaint)
+                    }
+                } else {
+                    tickPaint.alpha = 122
+                    val length = blend(ambience, radius / 42f, 0f)
+                    if (length > 0f) {
+                        drawLine(centerX, 0f, centerX, length, tickPaint)
+                    }
                 }
             }
         }
@@ -167,28 +174,16 @@ class AnalogClockDrawable(
         textPaint.textSize = (radius - hourHandLength) / 2.3f
         textPaint.alpha = (30 * ambience).toInt()
         clockPaint.color = contentColor
-        clockPaint.textAlign = Paint.Align.RIGHT
-        clockPaint.letterSpacing = -0.10f
-        clockPaint.textSize = (radius - hourHandLength) / 2.2f
-        clockPaint.alpha = (30 * ambience).toInt()
-
-        if (timeEnabled) withRotation(minuteHandRotation + 235f, centerX, centerY) {
-            val path = Path().apply {
-                addCircle(
-                    centerX,
-                    centerY,
-                    minuteHandLength - clockPaint.textSize / 2f,
-                    Path.Direction.CW
-                )
-            }
-            clockPaint.alpha = (55 * ambience).toInt()
-            drawTextOnPath(time, path, 0f, 0f, clockPaint)
-        }
         clockPaint.textAlign = Paint.Align.CENTER
-        clockPaint.alpha = 220
-        drawText(timeH, centerX * 1.6f, centerY, clockPaint)
-        clockPaint.alpha = 150
-        drawText(timeM, centerX * 1.6f, centerY + clockPaint.textSize, clockPaint)
+        clockPaint.letterSpacing = -0.10f
+        clockPaint.textSize = (radius - hourHandLengthMax) / 2f
+
+        if (timeEnabled) {
+            clockPaint.alpha = 225
+            drawText(hours, centerX * 1.6f, centerY, clockPaint)
+            clockPaint.alpha = 120
+            drawText(minutes, centerX * 1.6f, centerY + clockPaint.textSize, clockPaint)
+        }
 
         handPaint.color = accentColor
         handPaint.strokeWidth = radius / blend(ambience, 8f, 5f)
@@ -206,6 +201,12 @@ class AnalogClockDrawable(
         drawClockHand(minuteHandRotation, centerX, centerY, minuteHandLength, handPaint)
         if (ambience < 1f)
             drawClockHand(minuteHandRotation, centerX, centerY, hourHandLength / 1.5f, handSubPaint)
+
+        if (timeEnabled) {
+            clockPaint.alpha = 50
+            drawText(hours, centerX * 1.6f, centerY, clockPaint)
+            drawText(minutes, centerX * 1.6f, centerY + clockPaint.textSize, clockPaint)
+        }
 
         textPaint.textAlign = Paint.Align.CENTER
         textPaint.textSize = (radius - minuteHandLengthMin) / 3.1f
@@ -394,11 +395,7 @@ fun AnalogClockDrawable.installTimeIn(
             }
 
             // Update digital clock
-            this.time = formatTime(
-                context = context,
-                calendar = calendar,
-            )
-            this.timeH = formatTwoDigitNumber(
+            this.hours = formatTwoDigitNumber(
                 if (is24HourFormat(context)) {
                     calendar.get(Calendar.HOUR_OF_DAY)
                 } else {
@@ -407,7 +404,7 @@ fun AnalogClockDrawable.installTimeIn(
                         ?: 12
                 }
             )
-            this.timeM = formatTwoDigitNumber(calendar.get(Calendar.MINUTE))
+            this.minutes = formatTwoDigitNumber(calendar.get(Calendar.MINUTE))
 
             // Update analog clock
             animator?.cancel()
@@ -480,20 +477,6 @@ private fun AnalogClockDrawable.showAnalogTime(
         minuteHandRotation = minuteHandRotationNew
         return null
     }
-}
-
-private fun formatTime(context: Context, calendar: Calendar) = run {
-    val h = formatTwoDigitNumber(
-        if (is24HourFormat(context)) {
-            calendar.get(Calendar.HOUR_OF_DAY)
-        } else {
-            calendar.get(Calendar.HOUR)
-                .takeIf { it != 0 }
-                ?: 12
-        }
-    )
-    val m = formatTwoDigitNumber(calendar.get(Calendar.MINUTE))
-    "$h:$m"
 }
 
 /**
