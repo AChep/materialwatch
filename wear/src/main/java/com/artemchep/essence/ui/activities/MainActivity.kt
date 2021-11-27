@@ -54,7 +54,6 @@ class MainActivity : ActivityBase(), OnItemClickListener<ConfigItem> {
         }
 
         val itemIds = setOf(
-            SETTINGS_ITEM_COMPLICATIONS,
             SETTINGS_ITEM_DIGITAL_CLOCK,
             SETTINGS_ITEM_THEME,
             SETTINGS_ITEM_ACCENT,
