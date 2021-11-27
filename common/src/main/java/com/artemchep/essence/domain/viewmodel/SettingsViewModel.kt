@@ -191,7 +191,7 @@ class SettingsViewModel(
         private val config: Cfg,
         private val keys: Set<Int>
     ) : ViewModelProvider.Factory {
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return when {
                 modelClass.isAssignableFrom(SettingsViewModel::class.java) -> {
                     val viewModel = SettingsViewModel(

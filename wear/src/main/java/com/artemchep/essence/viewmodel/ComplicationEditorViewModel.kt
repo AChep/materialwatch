@@ -32,7 +32,7 @@ class ComplicationEditorViewModel(
         private val application: Application,
         private val watchComplicationId: Int,
     ) : ViewModelProvider.Factory {
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T =
+        override fun <T : ViewModel> create(modelClass: Class<T>): T =
             ComplicationEditorViewModel(
                 application = application,
                 watchComplicationId = watchComplicationId,
