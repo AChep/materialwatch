@@ -23,6 +23,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import java.util.*
 import kotlin.math.PI
+import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin
 
@@ -38,6 +39,8 @@ class AnalogClockDrawable(
         private const val HAND_HOUR_MIN_FACTOR = 0.42f
         private const val HAND_HOUR_MAX_FACTOR = 0.60f
     }
+
+    private val hasRoundScreen = context.resources.configuration.isScreenRound
 
     var complicationDataSparse: SparseArray<Complication2>? = null
 
@@ -140,22 +143,24 @@ class AnalogClockDrawable(
 
         // Draw tick marks
         for (i in 0 until 60) {
+            val degrees = 360f / 60f * i
             withRotation(
-                degrees = 360f / 60f * i,
+                degrees = degrees,
                 pivotX = centerX,
                 pivotY = centerY,
             ) {
+                val offsetY = calculateSquareScreenOffsetY(degrees, radius)
                 if (i.rem(5) == 0) {
                     tickPaint.alpha = 255
                     val length = blend(ambience, radius / 28f, 0f)
                     if (length > 0f) {
-                        drawLine(centerX, 0f, centerX, length, tickPaint)
+                        drawLine(centerX, offsetY, centerX, offsetY + length, tickPaint)
                     }
                 } else {
                     tickPaint.alpha = 122
                     val length = blend(ambience, radius / 42f, 0f)
                     if (length > 0f) {
-                        drawLine(centerX, 0f, centerX, length, tickPaint)
+                        drawLine(centerX, offsetY, centerX, offsetY + length, tickPaint)
                     }
                 }
             }
@@ -167,7 +172,9 @@ class AnalogClockDrawable(
         val hourHandLength = blend(ambience, hourHandLengthMax, hourHandLengthMin)
         val minuteHandLengthMax = (radius - strokeWidth) * HAND_MINUTE_MAX_FACTOR
         val minuteHandLengthMin = (radius - strokeWidth) * HAND_MINUTE_MIN_FACTOR
-        val minuteHandLength = blend(ambience, minuteHandLengthMax, minuteHandLengthMin)
+        val minuteHandLengthOffset = -calculateSquareScreenOffsetY(minuteHandRotation, radius) / 2f
+        val minuteHandLength = blend(ambience, minuteHandLengthMax, minuteHandLengthMin) +
+                minuteHandLengthOffset
 
         textPaint.color = contentColor
         textPaint.textAlign = Paint.Align.RIGHT
@@ -225,6 +232,23 @@ class AnalogClockDrawable(
                 text = value.text?.toString().orEmpty(),
             )
         }
+    }
+
+    private fun calculateSquareScreenOffsetY(
+        degrees: Float,
+        radius: Float,
+    ): Float {
+        if (radius <= 0.1f || hasRoundScreen) return 0f
+        val rad = degrees.rem(90f)
+            .let {
+                if (it > 45) {
+                    90f - it
+                } else it
+            }
+            .let { it.toDouble() }
+            .let(Math::toRadians)
+        val length = radius / cos(rad).toFloat()
+        return radius - length
     }
 
     private fun Canvas.drawClockHand(
