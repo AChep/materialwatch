@@ -53,7 +53,9 @@ class MainActivity : ActivityBase(), OnItemClickListener<ConfigItem> {
             adapter = this@MainActivity.adapter
         }
 
-        val itemIds = setOf(
+        val itemIds = setOfNotNull(
+            SETTINGS_ITEM_COMPLICATIONS
+                .takeIf { resources.configuration.isScreenRound },
             SETTINGS_ITEM_DIGITAL_CLOCK,
             SETTINGS_ITEM_THEME,
             SETTINGS_ITEM_ACCENT,
