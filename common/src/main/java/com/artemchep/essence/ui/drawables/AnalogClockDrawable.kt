@@ -210,7 +210,7 @@ class AnalogClockDrawable(
             drawClockHand(minuteHandRotation, centerX, centerY, hourHandLength / 1.5f, handSubPaint)
 
         if (timeEnabled) {
-            clockPaint.alpha = 50
+            clockPaint.alpha = 70
             drawText(hours, centerX * 1.6f, centerY, clockPaint)
             drawText(minutes, centerX * 1.6f, centerY + clockPaint.textSize, clockPaint)
         }
