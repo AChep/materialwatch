@@ -17,6 +17,7 @@ object Cfg : SharedPrefConfig("config") {
     const val KEY_ACCENT_COLOR = "accent"
     const val KEY_ACCENT_BG_ENABLED = "accent_bg_enabled"
     const val KEY_DIGITAL_CLOCK_ENABLED = "digital_clock_enabled"
+    const val KEY_HANDS_REVERTED = "hands_reverted"
     const val KEY_COMPLICATION_EDITOR = "complication_editor"
 
     // Theme
@@ -24,6 +25,8 @@ object Cfg : SharedPrefConfig("config") {
     const val THEME_BLACK = "BLACK"
     const val THEME_DARK = "DARK"
     const val THEME_LIGHT = "LIGHT"
+
+    var handsReverted: Boolean by configDelegate(KEY_HANDS_REVERTED, false)
 
     var digitalClockEnabled: Boolean by configDelegate(KEY_DIGITAL_CLOCK_ENABLED, true)
 

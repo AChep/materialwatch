@@ -19,6 +19,7 @@
     <string name="config_accent">Accent color</string>
     <string name="config_about">About</string>
     <string name="config_digital_clock">Digital clock</string>
+    <string name="config_hands_reverted">Reorder clock hands</string>
     <string name="config_accent_bg">Tint background</string>
 
     <string name="error_no_internet">IO error</string>

@@ -49,6 +49,8 @@ class AnalogClockDrawable(
 
     var timeEnabled: Boolean = true
 
+    var handsReverted: Boolean = false
+
     var backgroundTintEnabled: Boolean = false
 
     var backgroundColor: Int = Color.BLACK
@@ -197,17 +199,31 @@ class AnalogClockDrawable(
         handSubPaint.color = surfaceColor
         handSubPaint.strokeWidth = blend(ambience, radius / 14f, 0f)
 
-        // Draw hour hand
-        handPaint.alpha = 115
-        drawClockHand(hourHandRotation, centerX, centerY, hourHandLength, handPaint)
-        if (ambience < 1f)
-            drawClockHand(hourHandRotation, centerX, centerY, hourHandLength / 1.5f, handSubPaint)
+        if (handsReverted) {
+            // Draw minute hand
+            handPaint.alpha = 115
+            drawClockHand(minuteHandRotation, centerX, centerY, minuteHandLength, handPaint)
+            if (ambience < 1f)
+                drawClockHand(minuteHandRotation, centerX, centerY, hourHandLength / 1.5f, handSubPaint)
 
-        // Draw minute hand
-        handPaint.alpha = 255
-        drawClockHand(minuteHandRotation, centerX, centerY, minuteHandLength, handPaint)
-        if (ambience < 1f)
-            drawClockHand(minuteHandRotation, centerX, centerY, hourHandLength / 1.5f, handSubPaint)
+            // Draw hour hand
+            handPaint.alpha = 255
+            drawClockHand(hourHandRotation, centerX, centerY, hourHandLength, handPaint)
+            if (ambience < 1f)
+                drawClockHand(hourHandRotation, centerX, centerY, hourHandLength / 1.5f, handSubPaint)
+        } else {
+            // Draw hour hand
+            handPaint.alpha = 115
+            drawClockHand(hourHandRotation, centerX, centerY, hourHandLength, handPaint)
+            if (ambience < 1f)
+                drawClockHand(hourHandRotation, centerX, centerY, hourHandLength / 1.5f, handSubPaint)
+
+            // Draw minute hand
+            handPaint.alpha = 255
+            drawClockHand(minuteHandRotation, centerX, centerY, minuteHandLength, handPaint)
+            if (ambience < 1f)
+                drawClockHand(minuteHandRotation, centerX, centerY, hourHandLength / 1.5f, handSubPaint)
+        }
 
         if (timeEnabled) {
             clockPaint.alpha = 70
@@ -355,6 +371,13 @@ fun AnalogClockDrawable.installCfgIn(scope: CoroutineScope, invalidate: () -> Un
         .asFlowOfProperty<Boolean>(Cfg.KEY_DIGITAL_CLOCK_ENABLED)
         .onEach { enabled ->
             timeEnabled = enabled
+            invalidate()
+        }
+        .launchIn(scope)
+    Cfg
+        .asFlowOfProperty<Boolean>(Cfg.KEY_HANDS_REVERTED)
+        .onEach { enabled ->
+            handsReverted = enabled
             invalidate()
         }
         .launchIn(scope)

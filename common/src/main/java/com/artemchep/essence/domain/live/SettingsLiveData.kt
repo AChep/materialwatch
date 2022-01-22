@@ -57,6 +57,15 @@ class SettingsLiveData(
                 checked = isChecked,
             )
         },
+        SETTINGS_ITEM_HANDS_REVERTED to {
+            val isChecked = Cfg.handsReverted
+            ConfigItem(
+                id = SETTINGS_ITEM_HANDS_REVERTED,
+                icon = null,
+                title = context.getString(R.string.config_hands_reverted),
+                checked = isChecked,
+            )
+        },
         SETTINGS_ITEM_ACCENT_TINT_BG to {
             val isChecked = Cfg.accentBgEnabled
             ConfigItem(

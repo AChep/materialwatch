@@ -136,6 +136,11 @@ class SettingsViewModel(
                     Cfg.digitalClockEnabled = !Cfg.digitalClockEnabled
                 }
             }
+            SETTINGS_ITEM_HANDS_REVERTED -> {
+                Cfg.edit(context) {
+                    Cfg.handsReverted = !Cfg.handsReverted
+                }
+            }
             SETTINGS_ITEM_ACCENT_TINT_BG -> {
                 Cfg.edit(context) {
                     Cfg.accentBgEnabled = !Cfg.accentBgEnabled
