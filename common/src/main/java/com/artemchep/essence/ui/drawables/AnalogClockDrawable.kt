@@ -51,6 +51,8 @@ class AnalogClockDrawable(
 
     var handsReverted: Boolean = false
 
+    var complicationAlwaysOn: Boolean = false
+
     var backgroundTintEnabled: Boolean = false
 
     var backgroundColor: Int = Color.BLACK
@@ -143,6 +145,8 @@ class AnalogClockDrawable(
             bounds.exactCenterY(),
         )
 
+        val lAmbience = if (complicationAlwaysOn) 1f else ambience
+
         // Draw tick marks
         for (i in 0 until 60) {
             val degrees = 360f / 60f * i
@@ -154,13 +158,13 @@ class AnalogClockDrawable(
                 val offsetY = calculateSquareScreenOffsetY(degrees, radius)
                 if (i.rem(5) == 0) {
                     tickPaint.alpha = 255
-                    val length = blend(ambience, radius / 28f, 0f)
+                    val length = blend(lAmbience, radius / 28f, 0f)
                     if (length > 0f) {
                         drawLine(centerX, offsetY, centerX, offsetY + length, tickPaint)
                     }
                 } else {
                     tickPaint.alpha = 122
-                    val length = blend(ambience, radius / 42f, 0f)
+                    val length = blend(lAmbience, radius / 42f, 0f)
                     if (length > 0f) {
                         drawLine(centerX, offsetY, centerX, offsetY + length, tickPaint)
                     }
@@ -171,11 +175,11 @@ class AnalogClockDrawable(
         val strokeWidth = radius / 6f
         val hourHandLengthMax = (radius - strokeWidth) * HAND_HOUR_MAX_FACTOR
         val hourHandLengthMin = (radius - strokeWidth) * HAND_HOUR_MIN_FACTOR
-        val hourHandLength = blend(ambience, hourHandLengthMax, hourHandLengthMin)
+        val hourHandLength = blend(lAmbience, hourHandLengthMax, hourHandLengthMin)
         val minuteHandLengthMax = (radius - strokeWidth) * HAND_MINUTE_MAX_FACTOR
         val minuteHandLengthMin = (radius - strokeWidth) * HAND_MINUTE_MIN_FACTOR
         val minuteHandLengthOffset = -calculateSquareScreenOffsetY(minuteHandRotation, radius) / 2f
-        val minuteHandLength = blend(ambience, minuteHandLengthMax, minuteHandLengthMin) +
+        val minuteHandLength = blend(lAmbience, minuteHandLengthMax, minuteHandLengthMin) +
                 minuteHandLengthOffset
 
         textPaint.color = contentColor
@@ -195,7 +199,7 @@ class AnalogClockDrawable(
         }
 
         handPaint.color = accentColor
-        handPaint.strokeWidth = radius / blend(ambience, 8f, 5f)
+        handPaint.strokeWidth = radius / blend(lAmbience, 8f, 5f)
         handSubPaint.color = surfaceColor
         handSubPaint.strokeWidth = blend(ambience, radius / 14f, 0f)
 
@@ -234,7 +238,7 @@ class AnalogClockDrawable(
         textPaint.textAlign = Paint.Align.CENTER
         textPaint.textSize = (radius - minuteHandLengthMin) / 3.1f
 
-        val textArcRadius = blend(ambience, radius * 1.1f, radius)
+        val textArcRadius = blend(lAmbience, radius * 1.1f, radius)
         WATCH_COMPLICATIONS.forEachIndexed { index, complicationId ->
             val value = complicationDataSparse?.get(complicationId)
                 ?: return@forEachIndexed
@@ -378,6 +382,13 @@ fun AnalogClockDrawable.installCfgIn(scope: CoroutineScope, invalidate: () -> Un
         .asFlowOfProperty<Boolean>(Cfg.KEY_HANDS_REVERTED)
         .onEach { enabled ->
             handsReverted = enabled
+            invalidate()
+        }
+        .launchIn(scope)
+    Cfg
+        .asFlowOfProperty<Boolean>(Cfg.KEY_COMPLICATION_ALWAYS_ON)
+        .onEach { enabled ->
+            complicationAlwaysOn = enabled
             invalidate()
         }
         .launchIn(scope)

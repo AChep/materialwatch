@@ -103,6 +103,7 @@ class MainActivity : ActivityBase(),
             setOf(
                 SETTINGS_ITEM_DIGITAL_CLOCK,
                 SETTINGS_ITEM_HANDS_REVERTED,
+                SETTINGS_ITEM_COMPLICATION_ALWAYS_ON,
                 SETTINGS_ITEM_THEME,
                 SETTINGS_ITEM_ACCENT,
                 SETTINGS_ITEM_ACCENT_TINT_BG,

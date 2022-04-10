@@ -4,8 +4,17 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/essence.iml" filepath="$PROJECT_DIR$/.idea/modules/essence.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/common/essence.common.iml" filepath="$PROJECT_DIR$/.idea/modules/common/essence.common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/common/essence.common.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/common/essence.common.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/common/essence.common.main.iml" filepath="$PROJECT_DIR$/.idea/modules/common/essence.common.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/common/essence.common.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/common/essence.common.unitTest.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/mobile/essence.mobile.iml" filepath="$PROJECT_DIR$/.idea/modules/mobile/essence.mobile.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/mobile/essence.mobile.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/mobile/essence.mobile.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/mobile/essence.mobile.main.iml" filepath="$PROJECT_DIR$/.idea/modules/mobile/essence.mobile.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/mobile/essence.mobile.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/mobile/essence.mobile.unitTest.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/wear/essence.wear.iml" filepath="$PROJECT_DIR$/.idea/modules/wear/essence.wear.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/wear/essence.wear.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/wear/essence.wear.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/wear/essence.wear.main.iml" filepath="$PROJECT_DIR$/.idea/modules/wear/essence.wear.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/wear/essence.wear.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/wear/essence.wear.unitTest.iml" />
     </modules>
   </component>
 </project>

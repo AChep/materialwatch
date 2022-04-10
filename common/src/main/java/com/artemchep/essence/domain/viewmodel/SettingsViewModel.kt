@@ -141,6 +141,11 @@ class SettingsViewModel(
                     Cfg.handsReverted = !Cfg.handsReverted
                 }
             }
+            SETTINGS_ITEM_COMPLICATION_ALWAYS_ON -> {
+                Cfg.edit(context) {
+                    Cfg.complicationAlwaysOn = !Cfg.complicationAlwaysOn
+                }
+            }
             SETTINGS_ITEM_ACCENT_TINT_BG -> {
                 Cfg.edit(context) {
                     Cfg.accentBgEnabled = !Cfg.accentBgEnabled

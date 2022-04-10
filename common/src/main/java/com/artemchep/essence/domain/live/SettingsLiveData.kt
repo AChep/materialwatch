@@ -66,6 +66,15 @@ class SettingsLiveData(
                 checked = isChecked,
             )
         },
+        SETTINGS_ITEM_COMPLICATION_ALWAYS_ON to {
+            val isChecked = Cfg.complicationAlwaysOn
+            ConfigItem(
+                id = SETTINGS_ITEM_COMPLICATION_ALWAYS_ON,
+                icon = null,
+                title = context.getString(R.string.config_always_show_complications),
+                checked = isChecked,
+            )
+        },
         SETTINGS_ITEM_ACCENT_TINT_BG to {
             val isChecked = Cfg.accentBgEnabled
             ConfigItem(

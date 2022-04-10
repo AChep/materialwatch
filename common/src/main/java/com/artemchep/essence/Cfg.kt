@@ -18,6 +18,7 @@ object Cfg : SharedPrefConfig("config") {
     const val KEY_ACCENT_BG_ENABLED = "accent_bg_enabled"
     const val KEY_DIGITAL_CLOCK_ENABLED = "digital_clock_enabled"
     const val KEY_HANDS_REVERTED = "hands_reverted"
+    const val KEY_COMPLICATION_ALWAYS_ON = "complication_always_on"
     const val KEY_COMPLICATION_EDITOR = "complication_editor"
 
     // Theme
@@ -33,6 +34,8 @@ object Cfg : SharedPrefConfig("config") {
     var accentBgEnabled: Boolean by configDelegate(KEY_ACCENT_BG_ENABLED, false)
 
     var accentColor: Int by configDelegate(KEY_ACCENT_COLOR, PALETTE_MATERIAL_YOU)
+
+    var complicationAlwaysOn: Boolean by configDelegate(KEY_COMPLICATION_ALWAYS_ON, false)
 
     var complicationEditor: ComplicationEditor by configDelegate(
         key = KEY_COMPLICATION_EDITOR,
