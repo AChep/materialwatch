@@ -243,6 +243,7 @@ class AnalogClockDrawable(
             val value = complicationDataSparse?.get(complicationId)
                 ?: return@forEachIndexed
             drawArc(
+                animation = lAmbience,
                 rotation = 340f - 60f * index,
                 centerX = centerX,
                 centerY = centerY,
@@ -284,7 +285,8 @@ class AnalogClockDrawable(
     }
 
     private fun Canvas.drawArc(
-        rotation: Float = 360f * ambience,
+        animation: Float = ambience,
+        rotation: Float = 360f * animation,
         centerX: Float,
         centerY: Float,
         radius: Float,
@@ -292,7 +294,6 @@ class AnalogClockDrawable(
         text: String? = null,
         icon: Drawable? = null,
     ) {
-        val animation = ambience
         val direction = kotlin.run {
             val a = rotation.rem(360f) < 180f
             if (a) Path.Direction.CCW else Path.Direction.CW
