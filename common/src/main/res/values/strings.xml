@@ -4,6 +4,7 @@
 
     <string name="config">Config</string>
     <string name="config_complications">Complications</string>
+    <string name="config_complications_disclaimer">Experimental feature</string>
     <string name="config_complications_editor">Complication configuration</string>
     <string name="config_complications_editor_icon_enabled">Icon visible</string>
     <string name="config_complications_editor_icon_color">Icon color</string>

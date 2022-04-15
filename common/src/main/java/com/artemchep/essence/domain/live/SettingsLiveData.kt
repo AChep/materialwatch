@@ -38,6 +38,7 @@ class SettingsLiveData(
             ConfigItem(
                 id = SETTINGS_ITEM_COMPLICATIONS,
                 icon = AppCompatResources.getDrawable(context, R.drawable.ic_view),
+                summary = context.getString(R.string.config_complications_disclaimer),
                 title = context.getString(R.string.config_complications)
             )
         },
