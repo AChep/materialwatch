@@ -182,10 +182,13 @@ class AnalogClockDrawable(
         val minuteHandLength = blend(lAmbience, minuteHandLengthMax, minuteHandLengthMin) +
                 minuteHandLengthOffset
 
-        textPaint.color = contentColor
+        textPaint.color = blendColor(
+            ratio = ambience,
+            a = Color.WHITE,
+            b = contentColor,
+        )
         textPaint.textAlign = Paint.Align.RIGHT
         textPaint.textSize = (radius - hourHandLength) / 2.3f
-        textPaint.alpha = (30 * ambience).toInt()
         clockPaint.color = contentColor
         clockPaint.textAlign = Paint.Align.CENTER
         clockPaint.letterSpacing = -0.10f
